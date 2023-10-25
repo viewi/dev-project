@@ -1,0 +1,13 @@
+<ItemComponent>
+    <div id="toplevel">
+        <slot name="header">
+            <header>Default Header</header>
+        </slot>
+        <ItemComponent>
+            <slot></slot>
+        </ItemComponent>
+    </div>
+    <slot name="footer">
+        <footer>Default Footer</footer>
+    </slot>
+</ItemComponent>

@@ -1,0 +1,10 @@
+<button (click)="decrement()" class="mui-btn mui-btn--accent">-</button>
+<span class="mui--text-dark mui--text-title" style="font-size: {$count % 10 + 12}px;">
+    Count $count {strlen($message)}
+</span>
+Count $count strlen:{strlen($message)}
+<button (click)="$count++" class="mui-btn mui-btn--accent">+ expression</button>
+<button (click)="increment()" class="mui-btn mui-btn--accent">+ call</button>
+<button (click)="increment($event)" class="mui-btn mui-btn--accent">+ event</button>
+<button (click)="increment" class="mui-btn mui-btn--accent">+ method</button>
+<div>$message</div>

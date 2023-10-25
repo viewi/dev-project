@@ -1,0 +1,219 @@
+<div id="myid">Tag test $name $name2 $_name2_Test</div>
+<div>
+    \$notAVar {getName()} {getName($name)}
+    Nested
+    <!-- inner $name comment {$name} -->
+    <a href="/myurl">Url</a>
+</div>
+<a href="$url" empty="$empty" nullTest="$null" $attr="expression" $event="onEvent">Link</a>
+<meta name="description" content="Viewi UI components">
+<!-- comment1 --><!-- comment2 -->
+<!-- comment3 -->
+<hr>
+<h3>Todo demo</h3>
+<TodoApp />
+<hr>
+<h3>Component model</h3>
+<TestInput model="$testModel" />
+<div>Value: <b>$testModel</b></div>
+<input type="text" model="$testModel" />
+<hr>
+<h3>Emit event</h3>
+<TestButton class="mui-btn--accent" (click)="{$counterReducer->increment()}">Clicked {$counterReducer->count}
+</TestButton>
+<TestButton class="mui-btn--accent" (click)="{$counterReducer->increment}">Clicked {$counterReducer->count}</TestButton>
+<button class="mui-btn mui-btn--accent" (click)="$counterReducer->increment">Clicked {$counterReducer->count}</button>
+<hr>
+<h3>Unique Id</h3>
+<label for="{$__id}">First Name ({$__id})</label>
+<input id="{$__id}" type="text" />
+<hr>
+<h3>Sharing Singleton between components</h3>
+<button class="mui-btn mui-btn--accent" (click)="$counterReducer->increment()">Clicked {$counterReducer->count}</button>
+<br>
+<h3>Reducer sub component</h3>
+<StatefulCounter />
+<h3>Dispose test for Reducer</h3>
+<button class="mui-btn mui-btn--accent" (click)="$nestedIf = !$nestedIf">Toggle Nested If</button>
+<StatefulCounter if="$nestedIf" />
+<hr>
+<input model="$user->name" placeholder="User name" />
+<div><b>{$user->name}</b></div>
+<hr>
+<TestButton disabled loading id="myid" class="mui-btn--accent" title="Custom $name">Custom $name</TestButton>
+<hr>
+<input model="$name" placeholder="Enter your name" />
+<input model="$name" placeholder="Same name as above" />
+<p>
+    $name
+</p>
+<input model="$name2" placeholder="Enter your name" />
+<p>
+    $name2
+</p>
+<textarea model="$message" placeholder="Enter your message"></textarea>
+<div>Your message is:</div>
+<p style="white-space: pre-line;">$message</p>
+<label>
+    <input type="checkbox" model="$checked" /> Visible
+</label>
+<div if="$checked">I'm visible! <i #NameInput>#NameInput ref test</i></div>
+<div else>Please enable visibility to see.</div>
+
+<label>
+    <input type="checkbox" model="$checked2" /> Visible 2
+</label>
+<div if="$checked2">I'm visible!</div>
+<div else>Please enable visibility to see.</div>
+<input type="checkbox" id="jack" value="Jack" model="$checkedNames">
+<label for="jack">Jack</label>
+<input type="checkbox" id="john" value="John" model="$checkedNames">
+<label for="john">John</label>
+<input type="checkbox" id="mike" value="Mike" model="$checkedNames">
+<label for="mike">Mike</label>
+<br>
+<div>Checked names: {getNames()}</div>
+<h3>Radio:</h3>
+<input type="radio" id="one" value="One" model="$picked">
+<label for="one">One</label>
+<br>
+<input type="radio" id="two" value="Two" model="$picked">
+<label for="two">Two</label>
+<div>Picked: $picked</div>
+<h3>Select:</h3>
+<select model="$selected">
+    <option disabled value="">Please select one</option>
+    <option>A</option>
+    <option>B</option>
+    <option>C</option>
+</select>
+<div>Selected: $selected</div>
+<h3>Multi select</h3>
+<select model="$selectedList" multiple>
+    <option>A</option>
+    <option>B</option>
+    <option>C</option>
+</select>
+<select model="$selectedList" multiple>
+    <option>A</option>
+    <option>B</option>
+    <option>C</option>
+</select>
+<span>Selected: {json_encode($selectedList)}</span>
+<hr>
+<button disabled="$isDisabled">Send</button>
+<button disabled="{!$isDisabled}">Send</button>
+<button class="mui-btn" class.mui-btn="$isDisabled" class.mui-btn--primary="$isDisabled"
+    class.mui-btn--accent="{!$isDisabled}" (click)="$isDisabled = !$isDisabled">Conditional</button>
+<button class="mui-btn mui-btn--accent" (click)="$isDisabled = !$isDisabled">Toggle diabled</button>
+<hr>
+<div>{{$raw}}</div>
+Text
+{{$raw}}
+Text after that
+<hr>
+<button class="mui-btn mui-btn--accent"
+    (click)="$raw = $raw[0] === '<' ? 'New RAW: <span><i>Another content</i></span>' : '<b><i>Raw html text</i></b>'">Change
+    RAW</button>
+<hr>
+<TestButton></TestButton>
+<TestButton if="$nestedIf" id="myid" title="Custom $name" class="mui-btn--accent">Custom $name</TestButton>
+<TestButton if="$nestedIf" _props="{['id' => 'myid', 'title' => 'Custom ' . $name, 'class' => 'mui-btn--accent']}">
+    Custom $name
+</TestButton>
+<hr>
+
+<button class="mui-btn mui-btn--accent" (click)="$name = 'Viewi Junior'">Set name</button>
+<button class="mui-btn mui-btn--accent" (click)="$nestedIf = !$nestedIf">Toggle Nested If</button>
+<SomeComponent if="$nestedIf">Custom $name Slot</SomeComponent>
+<SomeComponent if="$nestedIf" foreach="$arrNested as $key => $subArr">
+    Custom $name Slot
+    <b foreach="$subArr as $subKey => $subItem" class="$key $subKey $subItem">$key. $subKey. $subItem</b>
+    <span if="$nestedIf">$name</span>
+</SomeComponent>
+<hr>
+<button class="mui-btn mui-btn--accent" (click)="$nestedIf = !$nestedIf">Toggle Nested If</button>
+<button class="mui-btn mui-btn--accent" (click)="$dynamic = $dynamic === 'div' ? 'ItemComponent' : 'div'">
+    Set component
+</button>
+$dynamic $dynamic2
+<$dynamic id="dynamic">Tag or component $dynamic $dynamic2</$dynamic>
+<$dynamic2 id="dynamic">Tag or component $dynamic $dynamic2</$dynamic2>
+<hr>
+<!-- <ItemComponent>custom $name slot</ItemComponent>
+<ItemComponent />
+<hr> -->
+<SomeComponent></SomeComponent>
+<hr>
+<SomeComponent>Custom $name Slot</SomeComponent>
+<hr>
+<SomeComponent>
+    <div>Custom $name slot
+        <slotContent name="header">Custom header $name inside div</slotContent>
+    </div>
+    <slotContent name="footer">Custom $name footer</slotContent>
+</SomeComponent>
+<hr>
+<div>Counter</div>
+<Counter />
+<hr>
+<button class="mui-btn mui-btn--accent" (click)="addTodo">Add to array</button>
+<span if="$nestedIf">$name</span>
+<template if="$ifValue" foreach="$arrNested as $key => $subArr">
+    <template foreach="$subArr as $subKey => $subItem">$key. $subKey. $subItem</template>
+</template>
+<div foreach="$arr as $item" if="$ifElseValue" class="foreach" data-item="$item">Item: <i class="$item">$item</i>
+    <span if="$nestedIf">$name</span>
+</div>
+
+<div foreach="$arr as $index => $item" class="foreach" data-index="$index" data-item="$item">$index. <i
+        class="$item">$item</i></div>
+<div foreach="$arrWithKeys as $index => $item" title="foreach with keys $index $item">$index: <i
+        class="$index $item">$item</i></div>
+<ul if="$ifValue" foreach="$arrNested as $key => $subArr">
+    <li foreach="$subArr as $subKey => $subItem" class="$key $subKey $subItem">$key. $subKey. $subItem</li>
+</ul>
+<p>With foreach and if</p>
+<ul foreach="$arrNested as $key => $subArr" if="$key === 'b'">
+    <li foreach="$subArr as $subKey => $subItem" class="$key $subKey $subItem">$key. $subKey. $subItem</li>
+</ul>
+<hr>
+<template>Template text</template>
+<template>Template text 2</template>
+<template>Template text 3</template>
+<hr>
+<button class="mui-btn mui-btn--accent" (click)="toggleIf">Toggle If value</button>
+<button class="mui-btn mui-btn--accent" (click)="toggleElseIf">Toggle ElseIf value</button>
+<button class="mui-btn mui-btn--accent" (click)="$nestedIf = !$nestedIf">Toggle Nested If</button>
+<button class="mui-btn mui-btn--accent" (click)="$name = 'Viewi Junior'">Set name</button>
+
+<hr>
+<div if="$ifValue">
+    If true
+</div>
+<div else-if="$ifElseValue">
+    Else if true
+</div>
+<div else>
+    Else
+</div>
+<p>just P 1</p>
+<hr>
+<template if="$ifValue">
+    Multinode If true
+    <span>also if true</span>
+    <div>anothe if true</div>
+</template>
+<template else-if="$ifElseValue">
+    Multinode ELSE If true
+    <span>also ELSE if true</span>
+    <div>anothe ELSE if true</div>
+</template>
+<template else>
+    Multinode ELSE
+    <span>also ELSE</span>
+    <div>anothe ELSE</div>
+</template>
+<p>just P 2</p>
+<hr>
+<div foreach="$arr as $item" class="foreach">$item</div>

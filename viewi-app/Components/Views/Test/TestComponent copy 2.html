@@ -1,0 +1,69 @@
+<div id="myid">Tag test $name $_name2_Test</div>
+<div>
+    \$notAVar {getName()} {getName($name)}
+    Nested
+    <!-- inner $name comment {$name} -->
+    <a href="/myurl">Url</a>
+</div>
+<a href="$url" empty="$empty" nullTest="$null" $attr="expression" $event="onEvent">Link</a>
+<meta name="description" content="Viewi UI components">
+<!-- comment1 --><!-- comment2 -->
+<!-- comment3 -->
+<hr>
+<button class="mui-btn mui-btn--accent" (click)="addTodo">Add to array</button>
+
+<div foreach="$arr as $item" if="$ifElseValue" class="foreach" data-item="$item">Item: <i class="$item">$item</i>
+    <span if="$nestedIf">$name</span>
+</div>
+
+<div foreach="$arr as $index => $item" class="foreach" data-index="$index" data-item="$item">$index. <i
+        class="$item">$item</i></div>
+<div foreach="$arrWithKeys as $index => $item" title="foreach with keys $index $item">$index: <i
+        class="$index $item">$item</i></div>
+<ul if="$ifValue" foreach="$arrNested as $key => $subArr">
+    <li foreach="$subArr as $subKey => $subItem" class="$key $subKey $subItem">$key. $subKey. $subItem</li>
+</ul>
+<p>With foreach and if</p>
+<ul foreach="$arrNested as $key => $subArr" if="$key === 'b'">
+    <li foreach="$subArr as $subKey => $subItem" class="$key $subKey $subItem">$key. $subKey. $subItem</li>
+</ul>
+<hr>
+<template>Template text</template>
+<template>Template text 2</template>
+<template>Template text 3</template>
+<hr>
+<button class="mui-btn mui-btn--accent" (click)="toggleIf">Toggle If value</button>
+<button class="mui-btn mui-btn--accent" (click)="toggleElseIf">Toggle ElseIf value</button>
+<button class="mui-btn mui-btn--accent" (click)="$nestedIf = !$nestedIf">Toggle Nested If</button>
+<button class="mui-btn mui-btn--accent" (click)="$name = 'Viewi Junior'">Set name</button>
+
+<hr>
+<div if="$ifValue">
+    If true
+</div>
+<div else-if="$ifElseValue">
+    Else if true
+</div>
+<div else>
+    Else
+</div>
+<p>just P 1</p>
+<hr>
+<template if="$ifValue">
+    Multinode If true
+    <span>also if true</span>
+    <div>anothe if true</div>
+</template>
+<template else-if="$ifElseValue">
+    Multinode ELSE If true
+    <span>also ELSE if true</span>
+    <div>anothe ELSE if true</div>
+</template>
+<template else>
+    Multinode ELSE
+    <span>also ELSE</span>
+    <div>anothe ELSE</div>
+</template>
+<p>just P 2</p>
+<hr>
+<div foreach="$arr as $item" class="foreach">$item</div>

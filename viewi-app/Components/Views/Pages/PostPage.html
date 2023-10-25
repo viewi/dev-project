@@ -1,0 +1,10 @@
+<Layout title="Post {$post ? $post->name : ''}">
+    <h1>Post</h1>
+    <div class="mui-container-fluid">
+        <div>Message: $message</div>
+        <div>Error: $error</div>
+        <div if="$post">
+            {$post->id} {$post->name}
+        </div>
+    </div>
+</Layout>

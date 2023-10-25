@@ -1,0 +1,46 @@
+<div id="myid">Tag test $name $_name2_Test</div>
+<div>
+    \$notAVar {getName()} {getName($name)}
+    Nested
+    <!-- inner $name comment {$name} -->
+    <a href="/myurl">Url</a>
+</div>
+<a href="$url" empty="$empty" nullTest="$null" $attr="expression" $event="onEvent">Link</a>
+<meta name="description" content="Viewi UI components">
+<!-- comment1 --><!-- comment2 -->
+<!-- comment3 -->
+<hr>
+<div foreach="$arr as $item" class="foreach">$item</div>
+<hr>
+<template>Template text</template>
+<template>Template text 2</template>
+<template>Template text 3</template>
+<hr>
+<button class="mui-btn mui-btn--accent" (click)="toggleIf">Toggle If value</button>
+<button class="mui-btn mui-btn--accent" (click)="toggleElseIf">Toggle ElseIf value</button>
+<div if="$ifValue">
+    If true
+</div>
+<div else-if="$ifElseValue">
+    Else if true
+</div>
+<div else>
+    Else
+</div>
+<hr>
+<template if="$ifValue">
+    Multinode If true
+    <span>also if true</span>
+    <div>anothe if true</div>
+</template>
+<template else-if="$ifElseValue">
+    Multinode ELSE If true
+    <span>also ELSE if true</span>
+    <div>anothe ELSE if true</div>
+</template>
+<template else>
+    Multinode ELSE
+    <span>also ELSE</span>
+    <div>anothe ELSE</div>
+</template>
+<hr>
