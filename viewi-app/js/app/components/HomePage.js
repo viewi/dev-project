@@ -1,5 +1,6 @@
 import { BaseComponent } from "../../viewi/core/component/baseComponent";
 import { PanelLayout } from "./PanelLayout";
+import { ViewiIcon } from "./ViewiIcon";
 
 class HomePage extends BaseComponent {
     _name = 'HomePage';

@@ -4,6 +4,7 @@ import { CounterReducer } from "./CounterReducer";
 import { TodoReducer } from "./TodoReducer";
 import { DemoContainer } from "./DemoContainer";
 import { MenuBar } from "./MenuBar";
+import { ViewiIcon } from "./ViewiIcon";
 import { Counter, Counter_x } from "./Counter";
 import { HomePage, HomePage_x } from "./HomePage";
 import { AreaLayout, AreaLayout_x } from "./AreaLayout";
@@ -33,6 +34,7 @@ export const components = {
     TodoReducer,
     DemoContainer,
     MenuBar,
+    ViewiIcon,
     Counter_x,
     Counter,
     HomePage_x,

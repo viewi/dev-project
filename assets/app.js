@@ -415,6 +415,11 @@
     _name = "DemoContainer";
   };
 
+  // app/components/ViewiIcon.js
+  var ViewiIcon = class extends BaseComponent {
+    _name = "ViewiIcon";
+  };
+
   // app/components/MenuBar.js
   var MenuBar = class extends BaseComponent {
     _name = "MenuBar";
@@ -1608,6 +1613,7 @@
     TodoReducer,
     DemoContainer,
     MenuBar,
+    ViewiIcon,
     Counter_x,
     Counter,
     HomePage_x,
@@ -1778,7 +1784,7 @@
     const invalid = [];
     for (let i = anchor.current + 1; i < end; i++) {
       const potentialNode = target.childNodes[i];
-      if (potentialNode.nodeType === 1 && potentialNode.nodeName.toLowerCase() === tag) {
+      if (potentialNode.nodeType === 1 && potentialNode.nodeName.toLowerCase() === tag.toLowerCase()) {
         anchor.current = i;
         anchor.invalid = anchor.invalid.concat(invalid);
         return potentialNode;
@@ -2325,6 +2331,20 @@
     }
   }
 
+  // viewi/core/helpers/isSvg.ts
+  var svgMap = {};
+  var svgTagsString = "svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view";
+  var svgTagsList = svgTagsString.split(",");
+  for (let i = 0; i < svgTagsList.length; i++) {
+    svgMap[svgTagsList[i]] = true;
+  }
+  function isSvg(tag) {
+    return tag.toLowerCase() in svgMap;
+  }
+
+  // viewi/core/helpers/svgNameSpace.ts
+  var svgNameSpace = "http://www.w3.org/2000/svg";
+
   // viewi/core/render/render.ts
   function render(target, instance, nodes, scope, directives, hydrate = true, insert = false) {
     let ifConditions = null;
@@ -2639,9 +2659,13 @@
               continue;
             }
             withAttributes = true;
-            element = hydrate ? hydrateTag(target, content) : insert ? target.parentElement.insertBefore(document.createElement(content), target) : target.appendChild(document.createElement(content));
+            const isSvgNode = isSvg(content) || target.isSvg;
+            element = hydrate ? hydrateTag(target, content) : insert ? target.parentElement.insertBefore(isSvgNode ? document.createElementNS(svgNameSpace, content) : document.createElement(content), target) : target.appendChild(isSvgNode ? document.createElementNS(svgNameSpace, content) : document.createElement(content));
             if (node.first) {
               instance._element = element;
+            }
+            if (isSvgNode) {
+              element.isSvg = true;
             }
           }
           if (isDynamic) {
@@ -3103,7 +3127,6 @@
 
   // viewi/core/render/renderApp.ts
   function renderApp(name, params, target, onAccept) {
-    console.time("renderApp");
     if (!(name in componentsMeta.list)) {
       throw new Error(`Component ${name} not found.`);
     }
@@ -3141,8 +3164,6 @@
         }
       }
     }
-    console.timeEnd("renderApp");
-    console.log(globalScope);
   }
 
   // viewi/core/router/locationScope.ts
