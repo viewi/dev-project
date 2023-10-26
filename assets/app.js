@@ -2680,7 +2680,7 @@
                   } else {
                     anchor.current++;
                     const currentTargetNode = target.childNodes[anchor.current];
-                    if (currentTargetNode.nodeType !== rawNodeType || rawNodeType === 1 && currentTargetNode.nodeName !== rawNode.nodeName) {
+                    if (!currentTargetNode || currentTargetNode.nodeType !== rawNodeType || rawNodeType === 1 && currentTargetNode.nodeName !== rawNode.nodeName) {
                       console.log("Missmatch");
                     } else if (rawNodeType === 1) {
                       if (currentTargetNode.nodeName !== rawNode.nodeName || currentTargetNode.outerHTML !== rawNode.outerHTML) {

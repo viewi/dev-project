@@ -27,6 +27,7 @@ $router->get('/api/post', function () {
 include __DIR__ . '/viewi-app/routes.php';
 
 $response = $app->run();
+
 if (is_string($response)) {
     header("Content-type: text/html; charset=utf-8");
     echo $response;
