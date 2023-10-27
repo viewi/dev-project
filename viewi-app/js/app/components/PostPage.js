@@ -11,16 +11,18 @@ class PostPage extends BaseComponent {
     error = "";
     message = "";
     $http = null;
+    id = null;
 
-    constructor(http) {
+    constructor(http, id) {
         super();
         var $this = this;
         $this.$http = http;
+        $this.id = id;
     }
 
     init() {
         var $this = this;
-        $this.$http.get("\/api\/post").then(function (post) {
+        $this.$http.get("\/api\/post\/" + $this.id).then(function (post) {
             $this.post = post;
             $this.message = "Post has been read successfully";
         }, function () {

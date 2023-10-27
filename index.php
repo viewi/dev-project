@@ -16,9 +16,9 @@ $app = include __DIR__ . '/viewi-app/viewi.php';
 
 // Demo API
 $router = $app->router();
-$router->get('/api/post', function () {
+$router->get('/api/post/{id}', function (int $id) {
     $post = new PostModel();
-    $post->id = 1;
+    $post->id = $id;
     $post->name = 'View Post Demo';
     return $post;
 });

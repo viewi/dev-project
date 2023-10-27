@@ -18,5 +18,5 @@ $router->get('/counter', CounterPage::class);
 $router->get('/todo', TodoAppPage::class);
 $router->get('/test', TestPage::class);
 $router->get('/layout-test', TestLayoutPage::class);
-$router->get('/post', PostPage::class);
+$router->get('/post/{id}', PostPage::class);
 $router->get('*', NotFoundPage::class);

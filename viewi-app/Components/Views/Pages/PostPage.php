@@ -12,13 +12,13 @@ class PostPage extends BaseComponent
     public string $error = '';
     public string $message = '';
 
-    public function __construct(private HttpClient $http)
+    public function __construct(private HttpClient $http, public int $id)
     {
     }
 
     public function init()
     {
-        $this->http->get('/api/post')
+        $this->http->get("/api/post/{$this->id}")
             ->then(function (?PostModel $post) {
                 $this->post = $post;
                 $this->message = 'Post has been read successfully';

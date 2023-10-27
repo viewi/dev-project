@@ -645,14 +645,16 @@
     error = "";
     message = "";
     $http = null;
-    constructor(http) {
+    id = null;
+    constructor(http, id) {
       super();
       var $this = this;
       $this.$http = http;
+      $this.id = id;
     }
     init() {
       var $this = this;
-      $this.$http.get("/api/post").then(function(post) {
+      $this.$http.get("/api/post/" + $this.id).then(function(post) {
         $this.post = post;
         $this.message = "Post has been read successfully";
       }, function() {
@@ -2867,7 +2869,7 @@
   // viewi/core/di/resolve.ts
   var singletonContainer = {};
   var nextInstanceId = 0;
-  function resolve(name, params = []) {
+  function resolve(name, params = {}) {
     const info = componentsMeta.list[name];
     let instance = null;
     let container = false;
@@ -2958,7 +2960,7 @@
   }
 
   // viewi/core/render/renderComponent.ts
-  function renderComponent(target, name, props, slots, hydrate = false, insert = false) {
+  function renderComponent(target, name, props, slots, hydrate = false, insert = false, params = {}) {
     if (!(name in componentsMeta.list)) {
       throw new Error(`Component ${name} not found.`);
     }
@@ -2979,7 +2981,7 @@
       }
       lastIteration[name].scope.keep = true;
     }
-    const instance = reuse ? lastIteration[name].instance : makeProxy(resolve(name));
+    const instance = reuse ? lastIteration[name].instance : makeProxy(resolve(name, params));
     if (!reuse) {
       if (info.hooks && info.hooks.init) {
         instance.init();
@@ -3145,7 +3147,7 @@
     globalScope.iteration = {};
     globalScope.scopedContainer = {};
     globalScope.located = {};
-    globalScope.rootScope = renderComponent(target ?? document, name, void 0, {}, hydrate, false);
+    globalScope.rootScope = renderComponent(target ?? document, name, void 0, {}, hydrate, false, params);
     globalScope.hydrate = false;
     for (let name2 in globalScope.lastIteration) {
       if (!(name2 in globalScope.iteration)) {
