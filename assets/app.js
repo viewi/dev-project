@@ -133,8 +133,18 @@
   // viewi/core/component/componentsMeta.ts
   var componentsMeta = {
     list: {},
+    config: {},
     booleanAttributes: {},
     router: new Router()
+  };
+
+  // viewi/core/environment/process.ts
+  var Process = class {
+    browser = true;
+    server = false;
+    getConfig() {
+      return componentsMeta.config;
+    }
   };
 
   // viewi/core/events/resolver.ts
@@ -305,6 +315,7 @@
   // viewi/core/di/setUp.ts
   function setUp() {
     factory("HttpClient", HttpClient, () => new HttpClient());
+    factory("Process", Process, () => new Process());
   }
 
   // viewi/core/anchor/anchors.ts
@@ -353,6 +364,66 @@
     }
   }
 
+  // viewi/core/component/baseComponent.ts
+  var BaseComponent = class {
+    __id = "";
+    _props = {};
+    $_callbacks = {};
+    _refs = {};
+    _slots = {};
+    _element = null;
+    $$t = [];
+    // template inline expressions
+    $$r = {};
+    // reactivity callbacks
+    $$p = [];
+    // shared reactivity track ids
+    $;
+    _name = "BaseComponent";
+    emitEvent(name, event) {
+      if (name in this.$_callbacks) {
+        this.$_callbacks[name](event);
+      }
+    }
+  };
+
+  // app/components/ConfigService.js
+  var Process2 = register.Process;
+  var ConfigService = class {
+    $config = null;
+    $process = null;
+    constructor(process) {
+      var $this = this;
+      $this.$process = process;
+      $this.$config = process.getConfig();
+    }
+    getAll() {
+      var $this = this;
+      return $this.$config;
+    }
+    get(name) {
+      var $this = this;
+      return $this.$config[name] ?? null;
+    }
+  };
+
+  // app/components/WelcomeEmail.js
+  var WelcomeEmail = class extends BaseComponent {
+    _name = "WelcomeEmail";
+    baseUrl = "/";
+    constructor(config) {
+      super();
+      var $this = this;
+      $this.config = config;
+      $this.baseUrl = config.get("baseUrl");
+    }
+  };
+  var WelcomeEmail_x = [
+    function(_component) {
+      return _component.baseUrl;
+    }
+  ];
+
   // app/components/PostModel.js
   var PostModel = class {
     id = null;
@@ -384,29 +455,6 @@
     addNewItem(text) {
       var $this = this;
       $this.items = [...$this.items, text];
-    }
-  };
-
-  // viewi/core/component/baseComponent.ts
-  var BaseComponent = class {
-    __id = "";
-    _props = {};
-    $_callbacks = {};
-    _refs = {};
-    _slots = {};
-    _element = null;
-    $$t = [];
-    // template inline expressions
-    $$r = {};
-    // reactivity callbacks
-    $$p = [];
-    // shared reactivity track ids
-    $;
-    _name = "BaseComponent";
-    emitEvent(name, event) {
-      if (name in this.$_callbacks) {
-        this.$_callbacks[name](event);
-      }
     }
   };
 
@@ -1557,9 +1605,32 @@
   ];
 
   // app/components/TestPage.js
+  var Process3 = register.Process;
   var TestPage = class extends BaseComponent {
     _name = "TestPage";
+    baseUrl = "";
+    $process = null;
+    $config = null;
+    constructor(process, config) {
+      super();
+      var $this = this;
+      $this.$process = process;
+      $this.$config = config;
+      $this.baseUrl = config.get("baseUrl");
+    }
+    getEnvironment() {
+      var $this = this;
+      return $this.$process.browser ? "Browser" : "Server";
+    }
   };
+  var TestPage_x = [
+    function(_component) {
+      return "Config base url: " + (_component.baseUrl ?? "");
+    },
+    function(_component) {
+      return "Env: " + (_component.getEnvironment() ?? "");
+    }
+  ];
 
   // app/components/StatefulTodoApp.js
   var StatefulTodoApp = class extends BaseComponent {
@@ -1609,6 +1680,8 @@
 
   // app/components/index.js
   var components = {
+    WelcomeEmail_x,
+    WelcomeEmail,
     PostModel,
     UserModel,
     CounterReducer,
@@ -1631,6 +1704,7 @@
     PostPage_x,
     PostPage,
     TestLayoutPage,
+    TestPage_x,
     TestPage,
     TodoAppPage,
     StatefulCounter_x,
@@ -1650,7 +1724,8 @@
     TodoList_x,
     TodoList,
     ViewiAssets_x,
-    ViewiAssets
+    ViewiAssets,
+    ConfigService
   };
 
   // viewi/core/reactivity/handlers/getComponentModelHandler.ts
@@ -3234,6 +3309,7 @@
     const data = await (await fetch("/assets/components.json")).json();
     componentsMeta.list = data;
     componentsMeta.router.setRoutes(data._routes);
+    componentsMeta.config = data._config;
     const booleanArray = data._meta["boolean"].split(",");
     for (let i = 0; i < booleanArray.length; i++) {
       componentsMeta.booleanAttributes[booleanArray[i]] = true;

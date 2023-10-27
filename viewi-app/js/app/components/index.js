@@ -1,3 +1,4 @@
+import { WelcomeEmail, WelcomeEmail_x } from "./WelcomeEmail";
 import { PostModel } from "./PostModel";
 import { UserModel } from "./UserModel";
 import { CounterReducer } from "./CounterReducer";
@@ -14,7 +15,7 @@ import { NotFoundPage } from "./NotFoundPage";
 import { CounterPage } from "./CounterPage";
 import { PostPage, PostPage_x } from "./PostPage";
 import { TestLayoutPage } from "./TestLayoutPage";
-import { TestPage } from "./TestPage";
+import { TestPage, TestPage_x } from "./TestPage";
 import { TodoAppPage } from "./TodoAppPage";
 import { StatefulCounter, StatefulCounter_x } from "./StatefulCounter";
 import { StatefulTodoApp, StatefulTodoApp_x } from "./StatefulTodoApp";
@@ -26,8 +27,11 @@ import { TestInput, TestInput_x } from "./TestInput";
 import { TodoApp, TodoApp_x } from "./TodoApp";
 import { TodoList, TodoList_x } from "./TodoList";
 import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
+import { ConfigService } from "./ConfigService";
 
 export const components = {
+    WelcomeEmail_x,
+    WelcomeEmail,
     PostModel,
     UserModel,
     CounterReducer,
@@ -50,6 +54,7 @@ export const components = {
     PostPage_x,
     PostPage,
     TestLayoutPage,
+    TestPage_x,
     TestPage,
     TodoAppPage,
     StatefulCounter_x,
@@ -70,4 +75,5 @@ export const components = {
     TodoList,
     ViewiAssets_x,
     ViewiAssets,
+    ConfigService,
 };
