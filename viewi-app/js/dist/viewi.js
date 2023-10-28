@@ -1,4 +1,9 @@
 (() => {
+  // app/resources/index.js
+  var resources = {
+    componentsPath: "/assets/components.json"
+  };
+
   // viewi/core/router/routeItem.ts
   var RouteItem = class {
     method;
@@ -333,37 +338,6 @@
     layout: ""
   };
 
-  // viewi/core/lifecycle/dispose.ts
-  function dispose(scope) {
-    if (scope.keep)
-      return;
-    for (let reactivityIndex in scope.track) {
-      const reactivityItem = scope.track[reactivityIndex];
-      delete scope.instance.$$r[reactivityItem.path][reactivityItem.id];
-    }
-    scope.track = [];
-    if (scope.children) {
-      for (let i in scope.children) {
-        dispose(scope.children[i]);
-      }
-      scope.children = {};
-    }
-    if (scope.main) {
-      for (let i = 0; i < scope.instance.$$p.length; i++) {
-        const trackGroup = scope.instance.$$p[i];
-        delete trackGroup[1].$$r[trackGroup[0]];
-      }
-      const instance = scope.instance;
-      if (instance.destroy) {
-        instance.destroy();
-      }
-    }
-    if (scope.parent) {
-      delete scope.parent.children[scope.id];
-      delete scope.parent;
-    }
-  }
-
   // app/components/PostModel.js
   var PostModel = class {
     id = null;
@@ -374,6 +348,22 @@
   var UserModel = class {
     id = null;
     name = null;
+  };
+
+  // app/components/MermberGuard.js
+  var MermberGuard = class {
+    run(next) {
+      var $this = this;
+      next();
+    }
+  };
+
+  // app/components/MermberGuardNoAccess.js
+  var MermberGuardNoAccess = class {
+    run(next) {
+      var $this = this;
+      next(false);
+    }
   };
 
   // app/components/CounterReducer.js
@@ -647,6 +637,16 @@
   // app/components/CounterPage.js
   var CounterPage = class extends BaseComponent {
     _name = "CounterPage";
+  };
+
+  // app/components/MemberPage.js
+  var MemberPage = class extends BaseComponent {
+    _name = "MemberPage";
+  };
+
+  // app/components/MemberPageNoAccess.js
+  var MemberPageNoAccess = class extends BaseComponent {
+    _name = "MemberPageNoAccess";
   };
 
   // app/components/PostPage.js
@@ -1666,6 +1666,8 @@
   var components = {
     PostModel,
     UserModel,
+    MermberGuard,
+    MermberGuardNoAccess,
     CounterReducer,
     TodoReducer,
     DemoContainer,
@@ -1683,6 +1685,8 @@
     PanelLayout,
     NotFoundPage,
     CounterPage,
+    MemberPage,
+    MemberPageNoAccess,
     PostPage_x,
     PostPage,
     TestLayoutPage,
@@ -1709,6 +1713,91 @@
     ViewiAssets,
     ConfigService
   };
+
+  // viewi/core/di/resolve.ts
+  var singletonContainer = {};
+  var nextInstanceId = 0;
+  function resolve(name, params = {}) {
+    const info = componentsMeta.list[name];
+    let instance = null;
+    let container = false;
+    if (info.di === "Singleton") {
+      container = singletonContainer;
+    } else if (info.di === "Scoped") {
+      container = globalScope.scopedContainer;
+    }
+    if (container && name in container) {
+      return container[name];
+    }
+    if (info.custom) {
+      instance = factoryContainer[name]();
+    } else if (!info.dependencies) {
+      instance = new components[name]();
+    } else {
+      const constructArguments = [];
+      for (let i in info.dependencies) {
+        const dependency = info.dependencies[i];
+        var argument = null;
+        if (params && dependency.argName in params) {
+          argument = params[dependency.argName];
+        } else if (dependency.default) {
+          argument = dependency.default;
+        } else if (dependency.null) {
+          argument = null;
+        } else if (dependency.builtIn) {
+          argument = dependency.name === "string" ? "" : 0;
+        } else {
+          argument = resolve(dependency.name);
+        }
+        constructArguments.push(argument);
+      }
+      instance = new components[name](...constructArguments);
+    }
+    if (info.base) {
+      instance.__id = ++nextInstanceId + "";
+    }
+    const scopeState = getScopeState();
+    if (scopeState.state[name]) {
+      for (let prop in scopeState.state[name]) {
+        instance[prop] = scopeState.state[name][prop];
+      }
+    }
+    if (container) {
+      container[name] = instance;
+    }
+    return instance;
+  }
+
+  // viewi/core/lifecycle/dispose.ts
+  function dispose(scope) {
+    if (scope.keep)
+      return;
+    for (let reactivityIndex in scope.track) {
+      const reactivityItem = scope.track[reactivityIndex];
+      delete scope.instance.$$r[reactivityItem.path][reactivityItem.id];
+    }
+    scope.track = [];
+    if (scope.children) {
+      for (let i in scope.children) {
+        dispose(scope.children[i]);
+      }
+      scope.children = {};
+    }
+    if (scope.main) {
+      for (let i = 0; i < scope.instance.$$p.length; i++) {
+        const trackGroup = scope.instance.$$p[i];
+        delete trackGroup[1].$$r[trackGroup[0]];
+      }
+      const instance = scope.instance;
+      if (instance.destroy) {
+        instance.destroy();
+      }
+    }
+    if (scope.parent) {
+      delete scope.parent.children[scope.id];
+      delete scope.parent;
+    }
+  }
 
   // viewi/core/reactivity/handlers/getComponentModelHandler.ts
   function getComponentModelHandler(instance, setter) {
@@ -2923,60 +3012,6 @@
     }
   }
 
-  // viewi/core/di/resolve.ts
-  var singletonContainer = {};
-  var nextInstanceId = 0;
-  function resolve(name, params = {}) {
-    const info = componentsMeta.list[name];
-    let instance = null;
-    let container = false;
-    if (info.di === "Singleton") {
-      container = singletonContainer;
-    } else if (info.di === "Scoped") {
-      container = globalScope.scopedContainer;
-    }
-    if (container && name in container) {
-      return container[name];
-    }
-    if (info.custom) {
-      instance = factoryContainer[name]();
-    } else if (!info.dependencies) {
-      instance = new components[name]();
-    } else {
-      const constructArguments = [];
-      for (let i in info.dependencies) {
-        const dependency = info.dependencies[i];
-        var argument = null;
-        if (params && dependency.argName in params) {
-          argument = params[dependency.argName];
-        } else if (dependency.default) {
-          argument = dependency.default;
-        } else if (dependency.null) {
-          argument = null;
-        } else if (dependency.builtIn) {
-          argument = dependency.name === "string" ? "" : 0;
-        } else {
-          argument = resolve(dependency.name);
-        }
-        constructArguments.push(argument);
-      }
-      instance = new components[name](...constructArguments);
-    }
-    if (info.base) {
-      instance.__id = ++nextInstanceId + "";
-    }
-    const scopeState = getScopeState();
-    if (scopeState.state[name]) {
-      for (let prop in scopeState.state[name]) {
-        instance[prop] = scopeState.state[name][prop];
-      }
-    }
-    if (container) {
-      container[name] = instance;
-    }
-    return instance;
-  }
-
   // viewi/core/reactivity/handlers/updateComponentModel.ts
   function updateComponentModel(instance, attrName, getter, parentInstance) {
     instance[attrName] = getter(parentInstance);
@@ -3185,7 +3220,7 @@
   }
 
   // viewi/core/render/renderApp.ts
-  function renderApp(name, params, target, onAccept) {
+  function renderApp(name, params, target, onAccept, skipMiddleware) {
     if (!(name in componentsMeta.list)) {
       throw new Error(`Component ${name} not found.`);
     }
@@ -3197,6 +3232,31 @@
         location.href = onAccept.href;
         return;
       }
+    }
+    if (info.middleware && !skipMiddleware) {
+      const total = info.middleware.length;
+      let globalAllow = true;
+      let current = -1;
+      const next = function(allow = true) {
+        globalAllow = allow;
+        current++;
+        if (globalAllow && current < total) {
+          const middleware = resolve(info.middleware[current]);
+          console.log("Running middleware", middleware);
+          middleware.run(next);
+        } else {
+          if (globalAllow) {
+            console.log("Ready to render", globalAllow);
+            renderApp(name, params, target, onAccept, true);
+          } else {
+            console.log("Access denied", globalAllow);
+          }
+        }
+      };
+      next(true);
+      return;
+    }
+    if (onAccept) {
       onAccept.func(onAccept.href, onAccept.forward);
     }
     globalScope.layout = info.parent;
@@ -3288,7 +3348,7 @@
   globalThis.Viewi = Viewi;
   console.log("Viewi entry");
   (async () => {
-    const data = await (await fetch("/assets/components.json")).json();
+    const data = await (await fetch(resources.componentsPath)).json();
     componentsMeta.list = data;
     componentsMeta.router.setRoutes(data._routes);
     componentsMeta.config = data._config;

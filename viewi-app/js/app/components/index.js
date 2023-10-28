@@ -1,5 +1,7 @@
 import { PostModel } from "./PostModel";
 import { UserModel } from "./UserModel";
+import { MermberGuard } from "./MermberGuard";
+import { MermberGuardNoAccess } from "./MermberGuardNoAccess";
 import { CounterReducer } from "./CounterReducer";
 import { TodoReducer } from "./TodoReducer";
 import { DemoContainer } from "./DemoContainer";
@@ -12,6 +14,8 @@ import { Layout, Layout_x } from "./Layout";
 import { PanelLayout, PanelLayout_x } from "./PanelLayout";
 import { NotFoundPage } from "./NotFoundPage";
 import { CounterPage } from "./CounterPage";
+import { MemberPage } from "./MemberPage";
+import { MemberPageNoAccess } from "./MemberPageNoAccess";
 import { PostPage, PostPage_x } from "./PostPage";
 import { TestLayoutPage } from "./TestLayoutPage";
 import { TestPage, TestPage_x } from "./TestPage";
@@ -31,6 +35,8 @@ import { ConfigService } from "./ConfigService";
 export const components = {
     PostModel,
     UserModel,
+    MermberGuard,
+    MermberGuardNoAccess,
     CounterReducer,
     TodoReducer,
     DemoContainer,
@@ -48,6 +54,8 @@ export const components = {
     PanelLayout,
     NotFoundPage,
     CounterPage,
+    MemberPage,
+    MemberPageNoAccess,
     PostPage_x,
     PostPage,
     TestLayoutPage,
