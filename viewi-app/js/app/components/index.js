@@ -1,4 +1,3 @@
-import { WelcomeEmail, WelcomeEmail_x } from "./WelcomeEmail";
 import { PostModel } from "./PostModel";
 import { UserModel } from "./UserModel";
 import { CounterReducer } from "./CounterReducer";
@@ -30,8 +29,6 @@ import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
 import { ConfigService } from "./ConfigService";
 
 export const components = {
-    WelcomeEmail_x,
-    WelcomeEmail,
     PostModel,
     UserModel,
     CounterReducer,

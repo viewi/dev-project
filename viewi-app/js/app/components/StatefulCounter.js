@@ -8,8 +8,9 @@ class StatefulCounter extends BaseComponent {
     constructor(counter, count) {
         super();
         var $this = this;
+        count = typeof count !== 'undefined' ? count : 0;
         $this.counter = counter;
-        $this.count = count === undefined ? 0 : count;
+        $this.count = count;
         $this.counter.count+=100;
     }
 }

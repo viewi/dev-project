@@ -364,66 +364,6 @@
     }
   }
 
-  // viewi/core/component/baseComponent.ts
-  var BaseComponent = class {
-    __id = "";
-    _props = {};
-    $_callbacks = {};
-    _refs = {};
-    _slots = {};
-    _element = null;
-    $$t = [];
-    // template inline expressions
-    $$r = {};
-    // reactivity callbacks
-    $$p = [];
-    // shared reactivity track ids
-    $;
-    _name = "BaseComponent";
-    emitEvent(name, event) {
-      if (name in this.$_callbacks) {
-        this.$_callbacks[name](event);
-      }
-    }
-  };
-
-  // app/components/ConfigService.js
-  var Process2 = register.Process;
-  var ConfigService = class {
-    $config = null;
-    $process = null;
-    constructor(process) {
-      var $this = this;
-      $this.$process = process;
-      $this.$config = process.getConfig();
-    }
-    getAll() {
-      var $this = this;
-      return $this.$config;
-    }
-    get(name) {
-      var $this = this;
-      return $this.$config[name] ?? null;
-    }
-  };
-
-  // app/components/WelcomeEmail.js
-  var WelcomeEmail = class extends BaseComponent {
-    _name = "WelcomeEmail";
-    baseUrl = "/";
-    constructor(config) {
-      super();
-      var $this = this;
-      $this.config = config;
-      $this.baseUrl = config.get("baseUrl");
-    }
-  };
-  var WelcomeEmail_x = [
-    function(_component) {
-      return _component.baseUrl;
-    }
-  ];
-
   // app/components/PostModel.js
   var PostModel = class {
     id = null;
@@ -455,6 +395,29 @@
     addNewItem(text) {
       var $this = this;
       $this.items = [...$this.items, text];
+    }
+  };
+
+  // viewi/core/component/baseComponent.ts
+  var BaseComponent = class {
+    __id = "";
+    _props = {};
+    $_callbacks = {};
+    _refs = {};
+    _slots = {};
+    _element = null;
+    $$t = [];
+    // template inline expressions
+    $$r = {};
+    // reactivity callbacks
+    $$p = [];
+    // shared reactivity track ids
+    $;
+    _name = "BaseComponent";
+    emitEvent(name, event) {
+      if (name in this.$_callbacks) {
+        this.$_callbacks[name](event);
+      }
     }
   };
 
@@ -656,8 +619,9 @@
     constructor(counter, count2) {
       super();
       var $this = this;
+      count2 = typeof count2 !== "undefined" ? count2 : 0;
       $this.counter = counter;
-      $this.count = count2 === void 0 ? 0 : count2;
+      $this.count = count2;
       $this.counter.count += 100;
     }
   };
@@ -731,6 +695,26 @@
   // app/components/TestLayoutPage.js
   var TestLayoutPage = class extends BaseComponent {
     _name = "TestLayoutPage";
+  };
+
+  // app/components/ConfigService.js
+  var Process2 = register.Process;
+  var ConfigService = class {
+    $config = null;
+    $process = null;
+    constructor(process) {
+      var $this = this;
+      $this.$process = process;
+      $this.$config = process.getConfig();
+    }
+    getAll() {
+      var $this = this;
+      return $this.$config;
+    }
+    get(name) {
+      var $this = this;
+      return $this.$config[name] ?? null;
+    }
   };
 
   // app/functions/json_encode.js
@@ -1680,8 +1664,6 @@
 
   // app/components/index.js
   var components = {
-    WelcomeEmail_x,
-    WelcomeEmail,
     PostModel,
     UserModel,
     CounterReducer,
