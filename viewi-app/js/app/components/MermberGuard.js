@@ -1,7 +1,7 @@
 class MermberGuard {
-    run(next) {
+    run(c) {
         var $this = this;
-        next();
+        c.next();
     }
 }
 

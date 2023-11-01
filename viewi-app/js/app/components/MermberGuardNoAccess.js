@@ -1,7 +1,7 @@
 class MermberGuardNoAccess {
-    run(next) {
+    run(c) {
         var $this = this;
-        next(false);
+        c.next(false);
         // cancel
     }
 }

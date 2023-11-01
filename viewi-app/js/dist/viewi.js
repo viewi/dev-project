@@ -352,17 +352,17 @@
 
   // app/components/MermberGuard.js
   var MermberGuard = class {
-    run(next) {
+    run(c) {
       var $this = this;
-      next();
+      c.next();
     }
   };
 
   // app/components/MermberGuardNoAccess.js
   var MermberGuardNoAccess = class {
-    run(next) {
+    run(c) {
       var $this = this;
-      next(false);
+      c.next(false);
     }
   };
 
@@ -3237,23 +3237,25 @@
       const total = info.middleware.length;
       let globalAllow = true;
       let current = -1;
-      const next = function(allow = true) {
-        globalAllow = allow;
-        current++;
-        if (globalAllow && current < total) {
-          const middleware = resolve(info.middleware[current]);
-          console.log("Running middleware", middleware);
-          middleware.run(next);
-        } else {
-          if (globalAllow) {
-            console.log("Ready to render", globalAllow);
-            renderApp(name, params, target, onAccept, true);
+      const context = {
+        next: function(allow = true) {
+          globalAllow = allow;
+          current++;
+          if (globalAllow && current < total) {
+            const middleware = resolve(info.middleware[current]);
+            console.log("Running middleware", middleware);
+            middleware.run(context);
           } else {
-            console.log("Access denied", globalAllow);
+            if (globalAllow) {
+              console.log("Ready to render", globalAllow);
+              renderApp(name, params, target, onAccept, true);
+            } else {
+              console.log("Access denied", globalAllow);
+            }
           }
         }
       };
-      next(true);
+      context.next(true);
       return;
     }
     if (onAccept) {
