@@ -1,4 +1,5 @@
 import { PostModel } from "./PostModel";
+import { SessionInterceptor } from "./SessionInterceptor";
 import { BaseComponent } from "../../viewi/core/component/baseComponent";
 import { register } from "../../viewi/core/di/register"
 import { Layout } from "./Layout";
@@ -10,19 +11,19 @@ class PostPage extends BaseComponent {
     post = null;
     error = "";
     message = "";
-    $http = null;
+    http = null;
     id = null;
 
     constructor(http, id) {
         super();
         var $this = this;
-        $this.$http = http;
+        $this.http = http;
         $this.id = id;
     }
 
     init() {
         var $this = this;
-        $this.$http.get("\/api\/post\/" + $this.id).then(function (post) {
+        $this.http.withInterceptor("SessionInterceptor").get("\/api\/post\/" + $this.id).then(function (post) {
             $this.post = post;
             $this.message = "Post has been read successfully";
         }, function () {

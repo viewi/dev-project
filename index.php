@@ -23,6 +23,10 @@ $router->get('/api/post/{id}', function (int $id) {
     return $post;
 });
 
+$router->post('/api/session', function () {
+    return ['CSRFToken' => 'token'];
+});
+
 // Viewi components
 include __DIR__ . '/viewi-app/routes.php';
 

@@ -9,20 +9,20 @@ var Process = register.Process;
 class TestPage extends BaseComponent {
     _name = 'TestPage';
     baseUrl = "";
-    $process = null;
-    $config = null;
+    process = null;
+    config = null;
 
     constructor(process, config) {
         super();
         var $this = this;
-        $this.$process = process;
-        $this.$config = config;
+        $this.process = process;
+        $this.config = config;
         $this.baseUrl = config.get("baseUrl");
     }
 
     getEnvironment() {
         var $this = this;
-        return $this.$process.browser ? "Browser" : "Server";
+        return $this.process.browser ? "Browser" : "Server";
     }
 }
 

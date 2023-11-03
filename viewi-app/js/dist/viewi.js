@@ -278,14 +278,15 @@
   }
 
   // viewi/core/http/httpClient.ts
-  var HttpClient = class {
+  var HttpClient = class _HttpClient {
+    interceptors = [];
     request(method, url, body, headers) {
       const resolver = new Resolver(function(callback) {
         try {
           const state = getScopeState();
           const requestKey = method.toLowerCase() + "_" + url + "_" + JSON.stringify(body);
           if (requestKey in state.http) {
-            callback(state.http[requestKey]);
+            callback(JSON.parse(state.http[requestKey]));
             delete state.http[requestKey];
             return;
           }
@@ -304,6 +305,11 @@
     }
     get(url, headers) {
       return this.request("get", url, null, headers);
+    }
+    withInterceptor(interceptor) {
+      const http = new _HttpClient();
+      http.interceptors = [...this.interceptors, interceptor];
+      return http;
     }
   };
 
@@ -348,6 +354,220 @@
   var UserModel = class {
     id = null;
     name = null;
+  };
+
+  // app/functions/array_merge.js
+  function array_merge() {
+    const args = Array.prototype.slice.call(arguments);
+    const argl = args.length;
+    let arg;
+    const retObj = {};
+    let k = "";
+    let argil = 0;
+    let j = 0;
+    let i = 0;
+    let ct = 0;
+    const toStr = Object.prototype.toString;
+    let retArr = true;
+    for (i = 0; i < argl; i++) {
+      if (toStr.call(args[i]) !== "[object Array]") {
+        retArr = false;
+        break;
+      }
+    }
+    if (retArr) {
+      retArr = [];
+      for (i = 0; i < argl; i++) {
+        retArr = retArr.concat(args[i]);
+      }
+      return retArr;
+    }
+    for (i = 0, ct = 0; i < argl; i++) {
+      arg = args[i];
+      if (toStr.call(arg) === "[object Array]") {
+        for (j = 0, argil = arg.length; j < argil; j++) {
+          retObj[ct++] = arg[j];
+        }
+      } else {
+        for (k in arg) {
+          if (arg.hasOwnProperty(k)) {
+            if (parseInt(k, 10) + "" === k) {
+              retObj[ct++] = arg[k];
+            } else {
+              retObj[k] = arg[k];
+            }
+          }
+        }
+      }
+    }
+    return retObj;
+  }
+
+  // app/components/Request.js
+  var Request = class _Request {
+    url = null;
+    method = null;
+    headers = null;
+    body = null;
+    constructor(url, method, headers, body) {
+      var $this = this;
+      method = typeof method !== "undefined" ? method : "get";
+      headers = typeof headers !== "undefined" ? headers : [];
+      body = typeof body !== "undefined" ? body : null;
+      $this.url = url;
+      $this.method = method;
+      $this.headers = headers;
+      $this.body = body;
+    }
+    withMethod(method) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.method = method;
+      return clone;
+    }
+    withUrl(url) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.url = url;
+      return clone;
+    }
+    withHeaders(headers) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.headers = array_merge(clone.headers, headers);
+      return clone;
+    }
+    withHeader(name, value) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.headers[name] = value;
+      return clone;
+    }
+    withBody(body) {
+      var $this = this;
+      body = typeof body !== "undefined" ? body : null;
+      var clone = $this.clone($this);
+      clone.body = body;
+      return clone;
+    }
+    clone() {
+      var $this = this;
+      var clone = new _Request($this.url, $this.method, $this.headers, $this.body);
+      return clone;
+    }
+  };
+
+  // app/components/Response.js
+  var Response = class _Response {
+    url = null;
+    status = null;
+    statusText = null;
+    headers = null;
+    body = null;
+    constructor(url, status, statusText, headers, body) {
+      var $this = this;
+      headers = typeof headers !== "undefined" ? headers : [];
+      body = typeof body !== "undefined" ? body : null;
+      $this.url = url;
+      $this.status = status;
+      $this.statusText = statusText;
+      $this.headers = headers;
+      $this.body = body;
+    }
+    withUrl(url) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.url = url;
+      return clone;
+    }
+    withStatus(status) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.status = status;
+      return clone;
+    }
+    withStatusText(statusText) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.statusText = statusText;
+      return clone;
+    }
+    withHeaders(headers) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.headers = array_merge(clone.headers, headers);
+      return clone;
+    }
+    withHeader(name, value) {
+      var $this = this;
+      var clone = $this.clone($this);
+      clone.headers[name] = value;
+      return clone;
+    }
+    withBody(body) {
+      var $this = this;
+      body = typeof body !== "undefined" ? body : null;
+      var clone = $this.clone($this);
+      clone.body = body;
+      return clone;
+    }
+    ok() {
+      var $this = this;
+      return $this.status >= 200 && $this.status < 300;
+    }
+    clone() {
+      var $this = this;
+      var clone = new _Response($this.url, $this.status, $this.statusText, $this.headers, $this.body);
+      return clone;
+    }
+  };
+
+  // app/components/ExampleInterceptor.js
+  var ExampleInterceptor = class {
+    request(request2, handler) {
+      var $this = this;
+      var newRequest = request2.withHeader("X-Test-ID", "mytoken");
+      handler.next(newRequest);
+    }
+    response(response, handler) {
+      var $this = this;
+      var nextResponse = response.withBody("Access denied").withStatus(400);
+      handler.next(nextResponse);
+    }
+  };
+
+  // app/components/SessionInterceptor.js
+  var HttpClient2 = register.HttpClient;
+  var SessionInterceptor = class {
+    CSRFToken = null;
+    http = null;
+    constructor(http) {
+      var $this = this;
+      $this.http = http;
+    }
+    request(request2, handler) {
+      var $this = this;
+      if ($this.CSRFToken === null) {
+        $this.http.post("/api/session").then(function(session) {
+          $this.CSRFToken = session["CSRFToken"];
+          $this.handleRequest(request2, handler);
+        }, function() {
+          handler.reject(request2);
+        });
+      } else {
+        $this.handleRequest(request2, handler);
+      }
+    }
+    handleRequest(request2, handler) {
+      var $this = this;
+      var newRequest = request2.withHeader("X-CSRF-TOKEN", $this.CSRFToken);
+      handler.next(newRequest);
+    }
+    response(response, handler) {
+      var $this = this;
+      response.body.id += 1e3;
+      handler.next(response);
+    }
   };
 
   // app/components/MermberGuard.js
@@ -650,23 +870,23 @@
   };
 
   // app/components/PostPage.js
-  var HttpClient2 = register.HttpClient;
+  var HttpClient3 = register.HttpClient;
   var PostPage = class extends BaseComponent {
     _name = "PostPage";
     post = null;
     error = "";
     message = "";
-    $http = null;
+    http = null;
     id = null;
     constructor(http, id) {
       super();
       var $this = this;
-      $this.$http = http;
+      $this.http = http;
       $this.id = id;
     }
     init() {
       var $this = this;
-      $this.$http.get("/api/post/" + $this.id).then(function(post) {
+      $this.http.withInterceptor("SessionInterceptor").get("/api/post/" + $this.id).then(function(post) {
         $this.post = post;
         $this.message = "Post has been read successfully";
       }, function() {
@@ -700,20 +920,20 @@
   // app/components/ConfigService.js
   var Process2 = register.Process;
   var ConfigService = class {
-    $config = null;
-    $process = null;
+    config = null;
+    process = null;
     constructor(process) {
       var $this = this;
-      $this.$process = process;
-      $this.$config = process.getConfig();
+      $this.process = process;
+      $this.config = process.getConfig();
     }
     getAll() {
       var $this = this;
-      return $this.$config;
+      return $this.config;
     }
     get(name) {
       var $this = this;
-      return $this.$config[name] ?? null;
+      return $this.config[name] ?? null;
     }
   };
 
@@ -1593,18 +1813,18 @@
   var TestPage = class extends BaseComponent {
     _name = "TestPage";
     baseUrl = "";
-    $process = null;
-    $config = null;
+    process = null;
+    config = null;
     constructor(process, config) {
       super();
       var $this = this;
-      $this.$process = process;
-      $this.$config = config;
+      $this.process = process;
+      $this.config = config;
       $this.baseUrl = config.get("baseUrl");
     }
     getEnvironment() {
       var $this = this;
-      return $this.$process.browser ? "Browser" : "Server";
+      return $this.process.browser ? "Browser" : "Server";
     }
   };
   var TestPage_x = [
@@ -1666,6 +1886,8 @@
   var components = {
     PostModel,
     UserModel,
+    ExampleInterceptor,
+    SessionInterceptor,
     MermberGuard,
     MermberGuardNoAccess,
     CounterReducer,
@@ -1711,7 +1933,9 @@
     TodoList,
     ViewiAssets_x,
     ViewiAssets,
-    ConfigService
+    ConfigService,
+    Request,
+    Response
   };
 
   // viewi/core/di/resolve.ts

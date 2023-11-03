@@ -1,5 +1,7 @@
 import { PostModel } from "./PostModel";
 import { UserModel } from "./UserModel";
+import { ExampleInterceptor } from "./ExampleInterceptor";
+import { SessionInterceptor } from "./SessionInterceptor";
 import { MermberGuard } from "./MermberGuard";
 import { MermberGuardNoAccess } from "./MermberGuardNoAccess";
 import { CounterReducer } from "./CounterReducer";
@@ -31,10 +33,14 @@ import { TodoApp, TodoApp_x } from "./TodoApp";
 import { TodoList, TodoList_x } from "./TodoList";
 import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
 import { ConfigService } from "./ConfigService";
+import { Request } from "./Request";
+import { Response } from "./Response";
 
 export const components = {
     PostModel,
     UserModel,
+    ExampleInterceptor,
+    SessionInterceptor,
     MermberGuard,
     MermberGuardNoAccess,
     CounterReducer,
@@ -81,4 +87,6 @@ export const components = {
     ViewiAssets_x,
     ViewiAssets,
     ConfigService,
+    Request,
+    Response,
 };
