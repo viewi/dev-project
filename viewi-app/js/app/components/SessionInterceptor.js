@@ -1,6 +1,5 @@
+import { PostModel } from "./PostModel";
 import { register } from "../../viewi/core/di/register"
-import { Request } from "./Request";
-import { Response } from "./Response";
 
 var HttpClient = register.HttpClient;
 
@@ -38,7 +37,18 @@ class SessionInterceptor {
 
     response(response, handler) {
         var $this = this;
-        response.body.id+=1000;
+        handler.reject(response);
+        return;
+        if (response.status === 0) {
+            response.status = 200;
+            response.body = new PostModel();
+            response.body.id = 0;
+            response.body.name = "Mockup Post due to rejected request";
+        }
+        else {
+            response.body.id+=1000;
+            // PostModel
+        }
         handler.next(response);
     }
 }

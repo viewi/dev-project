@@ -33,8 +33,6 @@ import { TodoApp, TodoApp_x } from "./TodoApp";
 import { TodoList, TodoList_x } from "./TodoList";
 import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
 import { ConfigService } from "./ConfigService";
-import { Request } from "./Request";
-import { Response } from "./Response";
 
 export const components = {
     PostModel,
@@ -87,6 +85,4 @@ export const components = {
     ViewiAssets_x,
     ViewiAssets,
     ConfigService,
-    Request,
-    Response,
 };

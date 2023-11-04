@@ -2,6 +2,7 @@
 
 namespace Components\Services\Interceptors;
 
+use Components\Models\PostModel;
 use Viewi\Components\Http\HttpClient;
 use Viewi\Components\Http\Interceptor\IHttpInterceptor;
 use Viewi\Components\Http\Interceptor\IRequestHandler;
@@ -20,6 +21,8 @@ class SessionInterceptor implements IHttpInterceptor
 
     public function request(Request $request, IRequestHandler $handler)
     {
+        // $handler->reject($request);
+        // return;
         if ($this->CSRFToken === null) {
             $this->http->post("/api/session")
                 ->then(function ($session) use ($request, $handler) {
@@ -44,7 +47,17 @@ class SessionInterceptor implements IHttpInterceptor
 
     public function response(Response $response, IResponseHandler $handler)
     {
-        $response->body->id += 1000; // PostModel
+        $handler->reject($response);
+        return;
+        if ($response->status === 0) {
+            // rejected
+            $response->status = 200; // to avoid failing
+            $response->body = new PostModel();
+            $response->body->id = 0;
+            $response->body->name = 'Mockup Post due to rejected request';
+        } else {
+            $response->body->id += 1000; // PostModel
+        }
         $handler->next($response);
     }
 }

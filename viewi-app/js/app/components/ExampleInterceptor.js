@@ -1,5 +1,3 @@
-import { Request } from "./Request";
-import { Response } from "./Response";
 
 class ExampleInterceptor {
     request(request, handler) {

@@ -221,21 +221,72 @@
     return false;
   }
 
-  // viewi/core/http/request.ts
-  function request(callback, type, url, data, headers) {
-    const request2 = new XMLHttpRequest();
-    request2.onreadystatechange = function() {
-      if (request2.readyState === 4) {
-        const status = request2.status;
-        const contentType = request2.getResponseHeader("Content-Type");
+  // viewi/core/http/response.ts
+  var Response = class _Response {
+    url;
+    status;
+    statusText;
+    headers = {};
+    body = null;
+    constructor(url, status, statusText, headers = {}, body = null) {
+      this.url = url;
+      this.status = status;
+      this.statusText = statusText;
+      this.headers = headers;
+      this.body = body;
+    }
+    withUrl(url) {
+      var clone = this.clone();
+      clone.url = url;
+      return clone;
+    }
+    withStatus(status, statusText = null) {
+      var clone = this.clone();
+      clone.status = status;
+      if (statusText !== null) {
+        clone.statusText = statusText;
+      }
+      return clone;
+    }
+    withHeaders(headers) {
+      var clone = this.clone();
+      clone.headers = { ...clone.headers, ...headers };
+      return clone;
+    }
+    withHeader(name, value) {
+      var clone = this.clone();
+      clone.headers[name] = value;
+      return clone;
+    }
+    withBody(body = null) {
+      var clone = this.clone();
+      clone.body = body;
+      return clone;
+    }
+    ok() {
+      return this.status >= 200 && this.status < 300;
+    }
+    clone() {
+      var clone = new _Response(this.url, this.status, this.statusText, this.headers, this.body);
+      return clone;
+    }
+  };
+
+  // viewi/core/http/runRequest.ts
+  function runRequest(callback, type, url, data, headers) {
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+      if (request.readyState === 4) {
+        const status = request.status;
+        const contentType = request.getResponseHeader("Content-Type");
         const itsJson = contentType && contentType.indexOf("application/json") === 0;
-        const raw = request2.responseText;
+        const raw = request.responseText;
         let content = raw;
         if (itsJson) {
-          content = JSON.parse(request2.responseText);
+          content = JSON.parse(request.responseText);
         }
         const headers2 = {};
-        const headersString = request2.getAllResponseHeaders();
+        const headersString = request.getAllResponseHeaders();
         if (headersString) {
           const headersArray = headersString.trim().split(/[\r\n]+/);
           for (let i = 0; i < headersArray.length; i++) {
@@ -249,99 +300,70 @@
           }
           ;
         }
-        const response = {
-          status,
-          headers: headers2,
-          raw,
-          data: content
-        };
+        const response = new Response(url, status, "", headers2, content);
         callback(response);
       }
     };
     const isJson = data !== null && typeof data === "object" && !isBlob(data);
-    request2.open(type.toUpperCase(), url, true);
+    request.open(type.toUpperCase(), url, true);
     if (isJson) {
-      request2.setRequestHeader("Content-Type", "application/json");
+      request.setRequestHeader("Content-Type", "application/json");
     }
     if (headers) {
       for (const h in headers) {
         if (Array.isArray(headers[h])) {
           for (let i = 0; i < headers[h].length; i++) {
-            request2.setRequestHeader(h, headers[h][i]);
+            request.setRequestHeader(h, headers[h][i]);
           }
         } else {
-          request2.setRequestHeader(h, headers[h]);
+          request.setRequestHeader(h, headers[h]);
         }
       }
     }
-    data !== null ? request2.send(isJson ? JSON.stringify(data) : data) : request2.send();
+    data !== null ? request.send(isJson ? JSON.stringify(data) : data) : request.send();
   }
 
-  // viewi/core/http/httpClient.ts
-  var HttpClient = class _HttpClient {
-    interceptors = [];
-    request(method, url, body, headers) {
-      const resolver = new Resolver(function(callback) {
-        try {
-          const state = getScopeState();
-          const requestKey = method.toLowerCase() + "_" + url + "_" + JSON.stringify(body);
-          if (requestKey in state.http) {
-            callback(JSON.parse(state.http[requestKey]));
-            delete state.http[requestKey];
-            return;
-          }
-          request(function(response) {
-            if (response.status === 0 || response.status >= 200 && response.status < 400) {
-              callback(response.data);
-            } else {
-              callback(void 0, response.data);
-            }
-          }, method, url, body, headers);
-        } catch (ex) {
-          callback(void 0, ex);
-        }
-      });
-      return resolver;
+  // viewi/core/http/request.ts
+  var Request = class _Request {
+    url;
+    method;
+    headers = {};
+    body = null;
+    constructor(url, method, headers = {}, body = null) {
+      this.url = url;
+      this.method = method;
+      this.headers = headers;
+      this.body = body;
     }
-    get(url, headers) {
-      return this.request("get", url, null, headers);
+    withMethod(method) {
+      var clone = this.clone();
+      clone.method = method;
+      return clone;
     }
-    withInterceptor(interceptor) {
-      const http = new _HttpClient();
-      http.interceptors = [...this.interceptors, interceptor];
-      return http;
+    withUrl(url) {
+      var clone = this.clone();
+      clone.url = url;
+      return clone;
     }
-  };
-
-  // viewi/core/di/register.ts
-  var register = {};
-
-  // viewi/core/di/factory.ts
-  var factoryContainer = {};
-  function factory(name, implementation, factory2) {
-    register[name] = implementation;
-    factoryContainer[name] = factory2;
-  }
-
-  // viewi/core/di/setUp.ts
-  function setUp() {
-    factory("HttpClient", HttpClient, () => new HttpClient());
-    factory("Process", Process, () => new Process());
-  }
-
-  // viewi/core/anchor/anchors.ts
-  var anchors = {};
-
-  // viewi/core/di/globalScope.ts
-  var globalScope = {
-    hydrate: true,
-    // first time hydrate, TODO: configurable, MFE won't need hydration
-    rootScope: false,
-    scopedContainer: {},
-    located: {},
-    iteration: {},
-    lastIteration: {},
-    layout: ""
+    withHeaders(headers) {
+      var clone = this.clone();
+      clone.headers = { ...clone.headers, ...headers };
+      return clone;
+    }
+    withHeader(name, value) {
+      var clone = this.clone();
+      clone.headers[name] = value;
+      return clone;
+    }
+    withBody(body = null) {
+      var clone = this.clone();
+      clone.body = body;
+      return clone;
+    }
+    clone() {
+      var clone = new _Request(this.url, this.method, this.headers, this.body);
+      return clone;
+    }
   };
 
   // app/components/PostModel.js
@@ -356,175 +378,11 @@
     name = null;
   };
 
-  // app/functions/array_merge.js
-  function array_merge() {
-    const args = Array.prototype.slice.call(arguments);
-    const argl = args.length;
-    let arg;
-    const retObj = {};
-    let k = "";
-    let argil = 0;
-    let j = 0;
-    let i = 0;
-    let ct = 0;
-    const toStr = Object.prototype.toString;
-    let retArr = true;
-    for (i = 0; i < argl; i++) {
-      if (toStr.call(args[i]) !== "[object Array]") {
-        retArr = false;
-        break;
-      }
-    }
-    if (retArr) {
-      retArr = [];
-      for (i = 0; i < argl; i++) {
-        retArr = retArr.concat(args[i]);
-      }
-      return retArr;
-    }
-    for (i = 0, ct = 0; i < argl; i++) {
-      arg = args[i];
-      if (toStr.call(arg) === "[object Array]") {
-        for (j = 0, argil = arg.length; j < argil; j++) {
-          retObj[ct++] = arg[j];
-        }
-      } else {
-        for (k in arg) {
-          if (arg.hasOwnProperty(k)) {
-            if (parseInt(k, 10) + "" === k) {
-              retObj[ct++] = arg[k];
-            } else {
-              retObj[k] = arg[k];
-            }
-          }
-        }
-      }
-    }
-    return retObj;
-  }
-
-  // app/components/Request.js
-  var Request = class _Request {
-    url = null;
-    method = null;
-    headers = null;
-    body = null;
-    constructor(url, method, headers, body) {
-      var $this = this;
-      method = typeof method !== "undefined" ? method : "get";
-      headers = typeof headers !== "undefined" ? headers : [];
-      body = typeof body !== "undefined" ? body : null;
-      $this.url = url;
-      $this.method = method;
-      $this.headers = headers;
-      $this.body = body;
-    }
-    withMethod(method) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.method = method;
-      return clone;
-    }
-    withUrl(url) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.url = url;
-      return clone;
-    }
-    withHeaders(headers) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.headers = array_merge(clone.headers, headers);
-      return clone;
-    }
-    withHeader(name, value) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.headers[name] = value;
-      return clone;
-    }
-    withBody(body) {
-      var $this = this;
-      body = typeof body !== "undefined" ? body : null;
-      var clone = $this.clone($this);
-      clone.body = body;
-      return clone;
-    }
-    clone() {
-      var $this = this;
-      var clone = new _Request($this.url, $this.method, $this.headers, $this.body);
-      return clone;
-    }
-  };
-
-  // app/components/Response.js
-  var Response = class _Response {
-    url = null;
-    status = null;
-    statusText = null;
-    headers = null;
-    body = null;
-    constructor(url, status, statusText, headers, body) {
-      var $this = this;
-      headers = typeof headers !== "undefined" ? headers : [];
-      body = typeof body !== "undefined" ? body : null;
-      $this.url = url;
-      $this.status = status;
-      $this.statusText = statusText;
-      $this.headers = headers;
-      $this.body = body;
-    }
-    withUrl(url) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.url = url;
-      return clone;
-    }
-    withStatus(status, statusText) {
-      var $this = this;
-      statusText = typeof statusText !== "undefined" ? statusText : null;
-      var clone = $this.clone($this);
-      clone.status = status;
-      if (statusText !== null) {
-        clone.statusText = statusText;
-      }
-      return clone;
-    }
-    withHeaders(headers) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.headers = array_merge(clone.headers, headers);
-      return clone;
-    }
-    withHeader(name, value) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.headers[name] = value;
-      return clone;
-    }
-    withBody(body) {
-      var $this = this;
-      body = typeof body !== "undefined" ? body : null;
-      var clone = $this.clone($this);
-      clone.body = body;
-      return clone;
-    }
-    ok() {
-      var $this = this;
-      return $this.status >= 200 && $this.status < 300;
-    }
-    clone() {
-      var $this = this;
-      var clone = new _Response($this.url, $this.status, $this.statusText, $this.headers, $this.body);
-      return clone;
-    }
-  };
-
   // app/components/ExampleInterceptor.js
   var ExampleInterceptor = class {
-    request(request2, handler) {
+    request(request, handler) {
       var $this = this;
-      var newRequest = request2.withHeader("X-Test-ID", "mytoken");
+      var newRequest = request.withHeader("X-Test-ID", "mytoken");
       handler.next(newRequest);
     }
     response(response, handler) {
@@ -534,8 +392,11 @@
     }
   };
 
+  // viewi/core/di/register.ts
+  var register = {};
+
   // app/components/SessionInterceptor.js
-  var HttpClient2 = register.HttpClient;
+  var HttpClient = register.HttpClient;
   var SessionInterceptor = class {
     CSRFToken = null;
     http = null;
@@ -543,27 +404,36 @@
       var $this = this;
       $this.http = http;
     }
-    request(request2, handler) {
+    request(request, handler) {
       var $this = this;
       if ($this.CSRFToken === null) {
         $this.http.post("/api/session").then(function(session) {
           $this.CSRFToken = session["CSRFToken"];
-          $this.handleRequest(request2, handler);
+          $this.handleRequest(request, handler);
         }, function() {
-          handler.reject(request2);
+          handler.reject(request);
         });
       } else {
-        $this.handleRequest(request2, handler);
+        $this.handleRequest(request, handler);
       }
     }
-    handleRequest(request2, handler) {
+    handleRequest(request, handler) {
       var $this = this;
-      var newRequest = request2.withHeader("X-CSRF-TOKEN", $this.CSRFToken);
+      var newRequest = request.withHeader("X-CSRF-TOKEN", $this.CSRFToken);
       handler.next(newRequest);
     }
     response(response, handler) {
       var $this = this;
-      response.body.id += 1e3;
+      handler.reject(response);
+      return;
+      if (response.status === 0) {
+        response.status = 200;
+        response.body = new PostModel();
+        response.body.id = 0;
+        response.body.name = "Mockup Post due to rejected request";
+      } else {
+        response.body.id += 1e3;
+      }
       handler.next(response);
     }
   };
@@ -868,7 +738,7 @@
   };
 
   // app/components/PostPage.js
-  var HttpClient3 = register.HttpClient;
+  var HttpClient2 = register.HttpClient;
   var PostPage = class extends BaseComponent {
     _name = "PostPage";
     post = null;
@@ -1931,9 +1801,26 @@
     TodoList,
     ViewiAssets_x,
     ViewiAssets,
-    ConfigService,
-    Request,
-    Response
+    ConfigService
+  };
+
+  // viewi/core/di/factory.ts
+  var factoryContainer = {};
+  function factory(name, implementation, factory2) {
+    register[name] = implementation;
+    factoryContainer[name] = factory2;
+  }
+
+  // viewi/core/di/globalScope.ts
+  var globalScope = {
+    hydrate: true,
+    // first time hydrate, TODO: configurable, MFE won't need hydration
+    rootScope: false,
+    scopedContainer: {},
+    located: {},
+    iteration: {},
+    lastIteration: {},
+    layout: ""
   };
 
   // viewi/core/di/resolve.ts
@@ -1989,6 +1876,125 @@
     }
     return instance;
   }
+
+  // viewi/core/http/httpClient.ts
+  var interceptResponses = function(response, callback, interceptorInstances) {
+    const total = interceptorInstances.length;
+    let current = total;
+    const lastCall = function(response2, keepGoing) {
+      console.log(response2, keepGoing);
+      if (keepGoing && response2.status >= 200 && response2.status < 300) {
+        callback(response2.body);
+      } else {
+        callback(void 0, response2.body ?? "Failed");
+      }
+    };
+    const run = function(response2, keepGoing) {
+      if (keepGoing) {
+        if (current > -1) {
+          const interceptor = interceptorInstances[current];
+          interceptor.response(response2, responseHandler);
+        } else {
+          lastCall(response2, keepGoing);
+        }
+      } else {
+        lastCall(response2, keepGoing);
+      }
+    };
+    const responseHandler = {
+      next: function(response2) {
+        current--;
+        run(response2, true);
+      },
+      reject: function(response2) {
+        current--;
+        run(response2, false);
+      }
+    };
+    responseHandler.next(response);
+  };
+  var HttpClient3 = class _HttpClient {
+    interceptors = [];
+    request(method, url, body, headers) {
+      const $this = this;
+      const resolver = new Resolver(function(callback) {
+        try {
+          const state = getScopeState();
+          const request = new Request(url, method, headers, body);
+          let current = -1;
+          const total = $this.interceptors.length;
+          const interceptorInstances = [];
+          const lastCall = function(request2, keepGoing) {
+            if (keepGoing) {
+              const requestKey = request2.method + "_" + request2.url + "_" + JSON.stringify(request2.body);
+              if (requestKey in state.http) {
+                const responseData = JSON.parse(state.http[requestKey]);
+                delete state.http[requestKey];
+                const response = new Response(request2.url, 200, "OK", {}, responseData);
+                interceptResponses(response, callback, interceptorInstances);
+                return;
+              } else {
+                runRequest(function(response) {
+                  interceptResponses(response, callback, interceptorInstances);
+                }, request2.method, request2.url, request2.body, request2.headers);
+              }
+            } else {
+              const response = new Response(request2.url, 0, "Rejected", {}, null);
+              interceptResponses(response, callback, interceptorInstances);
+            }
+          };
+          const run = function(request2, keepGoing) {
+            if (!keepGoing) {
+              lastCall(request2, keepGoing);
+              return;
+            }
+            if (current < total) {
+              const interceptor = resolve($this.interceptors[current]);
+              interceptorInstances.push(interceptor);
+              interceptor.request(request2, requestHandler);
+            } else {
+              lastCall(request2, keepGoing);
+            }
+          };
+          const requestHandler = {
+            next: function(request2) {
+              current++;
+              run(request2, true);
+            },
+            reject: function(request2) {
+              current++;
+              run(request2, false);
+            }
+          };
+          requestHandler.next(request);
+        } catch (ex) {
+          console.error(ex);
+          callback(void 0, ex);
+        }
+      });
+      return resolver;
+    }
+    get(url, headers) {
+      return this.request("get", url, null, headers);
+    }
+    post(url, body, headers) {
+      return this.request("post", url, body, headers);
+    }
+    withInterceptor(interceptor) {
+      const http = new _HttpClient();
+      http.interceptors = [...this.interceptors, interceptor];
+      return http;
+    }
+  };
+
+  // viewi/core/di/setUp.ts
+  function setUp() {
+    factory("HttpClient", HttpClient3, () => new HttpClient3());
+    factory("Process", Process, () => new Process());
+  }
+
+  // viewi/core/anchor/anchors.ts
+  var anchors = {};
 
   // viewi/core/lifecycle/dispose.ts
   function dispose(scope) {
