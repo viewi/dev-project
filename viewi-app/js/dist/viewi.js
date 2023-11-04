@@ -480,16 +480,14 @@
       clone.url = url;
       return clone;
     }
-    withStatus(status) {
+    withStatus(status, statusText) {
       var $this = this;
+      statusText = typeof statusText !== "undefined" ? statusText : null;
       var clone = $this.clone($this);
       clone.status = status;
-      return clone;
-    }
-    withStatusText(statusText) {
-      var $this = this;
-      var clone = $this.clone($this);
-      clone.statusText = statusText;
+      if (statusText !== null) {
+        clone.statusText = statusText;
+      }
       return clone;
     }
     withHeaders(headers) {

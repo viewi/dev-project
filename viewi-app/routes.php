@@ -10,6 +10,7 @@ use Components\Views\Pages\TestLayoutPage;
 use Components\Views\Pages\TestPage;
 use Components\Views\Pages\TodoAppPage;
 use Viewi\App;
+use Viewi\Components\Http\Message\Response;
 
 /**
  * @var App $app
@@ -24,4 +25,8 @@ $router->get('/post/{id}', PostPage::class);
 $router->get('/member', MemberPage::class);
 $router->get('/member-no-access', MemberPageNoAccess::class);
 
-$router->get('*', NotFoundPage::class);
+$router
+    ->get('*', NotFoundPage::class)
+    ->transform(function (Response $response) {
+        return $response->withStatus(404, 'Not Found');
+    });

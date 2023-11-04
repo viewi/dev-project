@@ -5,6 +5,7 @@
 // php -S localhost:8000 -t server/
 
 use Components\Models\PostModel;
+use Viewi\Components\Http\Message\Response;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -35,6 +36,12 @@ $response = $app->run();
 if (is_string($response)) {
     header("Content-type: text/html; charset=utf-8");
     echo $response;
+} elseif ($response instanceof Response) {
+    http_response_code($response->status);
+    foreach ($response->headers as $name => $value) {
+        header("$name: $value");
+    }
+    echo $response->body;
 } else {
     header("Content-type: application/json; charset=utf-8");
     echo json_encode($response);
