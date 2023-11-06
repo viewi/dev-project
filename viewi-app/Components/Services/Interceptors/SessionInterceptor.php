@@ -47,8 +47,8 @@ class SessionInterceptor implements IHttpInterceptor
 
     public function response(Response $response, IResponseHandler $handler)
     {
-        $handler->reject($response);
-        return;
+        // $handler->reject($response);
+        // return;
         if ($response->status === 0) {
             // rejected
             $response->status = 200; // to avoid failing

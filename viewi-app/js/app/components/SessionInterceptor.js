@@ -37,8 +37,6 @@ class SessionInterceptor {
 
     response(response, handler) {
         var $this = this;
-        handler.reject(response);
-        return;
         if (response.status === 0) {
             response.status = 200;
             response.body = new PostModel();

@@ -1,0 +1,27 @@
+<Layout title="Post {$post ? $post->name : ''}">
+    <h1>Post</h1>
+    <div class="mui-container-fluid">
+        <h3>New post</h3>
+        <label for="{$__id}">Name</label>
+        <input id="{$__id}" type="text" model="$newPost->name" />
+        <div>
+            {$newPost->id} {$newPost->name}
+        </div>
+        <div>
+            {json_encode($newPost)}
+        </div>
+        <div id="$newPost->name">
+            {crc32($newPost->name)}
+        </div>
+        <button class="mui-btn mui-btn--accent" (click)="clean">Clean</button>
+    </div>
+    <hr>
+    <div class="mui-container-fluid">
+        <h3>Current post</h3>
+        <div>Message: $message</div>
+        <div>Error: $error</div>
+        <div if="$post">
+            {$post->id} {$post->name}
+        </div>
+    </div>
+</Layout>

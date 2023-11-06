@@ -16,6 +16,7 @@ import { Layout, Layout_x } from "./Layout";
 import { PanelLayout, PanelLayout_x } from "./PanelLayout";
 import { NotFoundPage } from "./NotFoundPage";
 import { CounterPage } from "./CounterPage";
+import { LazyPostPage, LazyPostPage_x } from "./LazyPostPage";
 import { MemberPage } from "./MemberPage";
 import { MemberPageNoAccess } from "./MemberPageNoAccess";
 import { PostPage, PostPage_x } from "./PostPage";
@@ -58,6 +59,8 @@ export const components = {
     PanelLayout,
     NotFoundPage,
     CounterPage,
+    LazyPostPage_x,
+    LazyPostPage,
     MemberPage,
     MemberPageNoAccess,
     PostPage_x,

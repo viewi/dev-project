@@ -368,7 +368,7 @@
 
   // app/components/PostModel.js
   var PostModel = class {
-    id = null;
+    id = 0;
     name = null;
   };
 
@@ -424,8 +424,6 @@
     }
     response(response, handler) {
       var $this = this;
-      handler.reject(response);
-      return;
       if (response.status === 0) {
         response.status = 200;
         response.body = new PostModel();
@@ -727,84 +725,6 @@
     _name = "CounterPage";
   };
 
-  // app/components/MemberPage.js
-  var MemberPage = class extends BaseComponent {
-    _name = "MemberPage";
-  };
-
-  // app/components/MemberPageNoAccess.js
-  var MemberPageNoAccess = class extends BaseComponent {
-    _name = "MemberPageNoAccess";
-  };
-
-  // app/components/PostPage.js
-  var HttpClient2 = register.HttpClient;
-  var PostPage = class extends BaseComponent {
-    _name = "PostPage";
-    post = null;
-    error = "";
-    message = "";
-    http = null;
-    id = null;
-    constructor(http, id) {
-      super();
-      var $this = this;
-      $this.http = http;
-      $this.id = id;
-    }
-    init() {
-      var $this = this;
-      $this.http.withInterceptor("SessionInterceptor").get("/api/post/" + $this.id).then(function(post) {
-        $this.post = post;
-        $this.message = "Post has been read successfully";
-      }, function() {
-        $this.error = "Server error";
-      });
-    }
-  };
-  var PostPage_x = [
-    function(_component) {
-      return _component.post ? _component.post.name : "";
-    },
-    function(_component) {
-      return "Message: " + (_component.message ?? "");
-    },
-    function(_component) {
-      return "Error: " + (_component.error ?? "");
-    },
-    function(_component) {
-      return _component.post;
-    },
-    function(_component) {
-      return "\n            " + (_component.post.id ?? "") + " " + (_component.post.name ?? "") + "\n        ";
-    }
-  ];
-
-  // app/components/TestLayoutPage.js
-  var TestLayoutPage = class extends BaseComponent {
-    _name = "TestLayoutPage";
-  };
-
-  // app/components/ConfigService.js
-  var Process2 = register.Process;
-  var ConfigService = class {
-    config = null;
-    process = null;
-    constructor(process) {
-      var $this = this;
-      $this.process = process;
-      $this.config = process.getConfig();
-    }
-    getAll() {
-      var $this = this;
-      return $this.config;
-    }
-    get(name) {
-      var $this = this;
-      return $this.config[name] ?? null;
-    }
-  };
-
   // app/functions/json_encode.js
   function json_encode(mixedVal) {
     const $global = typeof window !== "undefined" ? window : global;
@@ -915,6 +835,496 @@
       return null;
     }
   }
+
+  // app/functions/utf8_encode.js
+  function utf8_encode(argString) {
+    if (argString === null || typeof argString === "undefined") {
+      return "";
+    }
+    const string = argString + "";
+    let utftext = "";
+    let start;
+    let end;
+    let stringl = 0;
+    start = end = 0;
+    stringl = string.length;
+    for (let n = 0; n < stringl; n++) {
+      let c1 = string.charCodeAt(n);
+      let enc = null;
+      if (c1 < 128) {
+        end++;
+      } else if (c1 > 127 && c1 < 2048) {
+        enc = String.fromCharCode(
+          c1 >> 6 | 192,
+          c1 & 63 | 128
+        );
+      } else if ((c1 & 63488) !== 55296) {
+        enc = String.fromCharCode(
+          c1 >> 12 | 224,
+          c1 >> 6 & 63 | 128,
+          c1 & 63 | 128
+        );
+      } else {
+        if ((c1 & 64512) !== 55296) {
+          throw new RangeError("Unmatched trail surrogate at " + n);
+        }
+        const c2 = string.charCodeAt(++n);
+        if ((c2 & 64512) !== 56320) {
+          throw new RangeError("Unmatched lead surrogate at " + (n - 1));
+        }
+        c1 = ((c1 & 1023) << 10) + (c2 & 1023) + 65536;
+        enc = String.fromCharCode(
+          c1 >> 18 | 240,
+          c1 >> 12 & 63 | 128,
+          c1 >> 6 & 63 | 128,
+          c1 & 63 | 128
+        );
+      }
+      if (enc !== null) {
+        if (end > start) {
+          utftext += string.slice(start, end);
+        }
+        utftext += enc;
+        start = end = n + 1;
+      }
+    }
+    if (end > start) {
+      utftext += string.slice(start, stringl);
+    }
+    return utftext;
+  }
+
+  // app/functions/crc32.js
+  function crc32(str) {
+    str = utf8_encode(str);
+    const table = [
+      "00000000",
+      "77073096",
+      "EE0E612C",
+      "990951BA",
+      "076DC419",
+      "706AF48F",
+      "E963A535",
+      "9E6495A3",
+      "0EDB8832",
+      "79DCB8A4",
+      "E0D5E91E",
+      "97D2D988",
+      "09B64C2B",
+      "7EB17CBD",
+      "E7B82D07",
+      "90BF1D91",
+      "1DB71064",
+      "6AB020F2",
+      "F3B97148",
+      "84BE41DE",
+      "1ADAD47D",
+      "6DDDE4EB",
+      "F4D4B551",
+      "83D385C7",
+      "136C9856",
+      "646BA8C0",
+      "FD62F97A",
+      "8A65C9EC",
+      "14015C4F",
+      "63066CD9",
+      "FA0F3D63",
+      "8D080DF5",
+      "3B6E20C8",
+      "4C69105E",
+      "D56041E4",
+      "A2677172",
+      "3C03E4D1",
+      "4B04D447",
+      "D20D85FD",
+      "A50AB56B",
+      "35B5A8FA",
+      "42B2986C",
+      "DBBBC9D6",
+      "ACBCF940",
+      "32D86CE3",
+      "45DF5C75",
+      "DCD60DCF",
+      "ABD13D59",
+      "26D930AC",
+      "51DE003A",
+      "C8D75180",
+      "BFD06116",
+      "21B4F4B5",
+      "56B3C423",
+      "CFBA9599",
+      "B8BDA50F",
+      "2802B89E",
+      "5F058808",
+      "C60CD9B2",
+      "B10BE924",
+      "2F6F7C87",
+      "58684C11",
+      "C1611DAB",
+      "B6662D3D",
+      "76DC4190",
+      "01DB7106",
+      "98D220BC",
+      "EFD5102A",
+      "71B18589",
+      "06B6B51F",
+      "9FBFE4A5",
+      "E8B8D433",
+      "7807C9A2",
+      "0F00F934",
+      "9609A88E",
+      "E10E9818",
+      "7F6A0DBB",
+      "086D3D2D",
+      "91646C97",
+      "E6635C01",
+      "6B6B51F4",
+      "1C6C6162",
+      "856530D8",
+      "F262004E",
+      "6C0695ED",
+      "1B01A57B",
+      "8208F4C1",
+      "F50FC457",
+      "65B0D9C6",
+      "12B7E950",
+      "8BBEB8EA",
+      "FCB9887C",
+      "62DD1DDF",
+      "15DA2D49",
+      "8CD37CF3",
+      "FBD44C65",
+      "4DB26158",
+      "3AB551CE",
+      "A3BC0074",
+      "D4BB30E2",
+      "4ADFA541",
+      "3DD895D7",
+      "A4D1C46D",
+      "D3D6F4FB",
+      "4369E96A",
+      "346ED9FC",
+      "AD678846",
+      "DA60B8D0",
+      "44042D73",
+      "33031DE5",
+      "AA0A4C5F",
+      "DD0D7CC9",
+      "5005713C",
+      "270241AA",
+      "BE0B1010",
+      "C90C2086",
+      "5768B525",
+      "206F85B3",
+      "B966D409",
+      "CE61E49F",
+      "5EDEF90E",
+      "29D9C998",
+      "B0D09822",
+      "C7D7A8B4",
+      "59B33D17",
+      "2EB40D81",
+      "B7BD5C3B",
+      "C0BA6CAD",
+      "EDB88320",
+      "9ABFB3B6",
+      "03B6E20C",
+      "74B1D29A",
+      "EAD54739",
+      "9DD277AF",
+      "04DB2615",
+      "73DC1683",
+      "E3630B12",
+      "94643B84",
+      "0D6D6A3E",
+      "7A6A5AA8",
+      "E40ECF0B",
+      "9309FF9D",
+      "0A00AE27",
+      "7D079EB1",
+      "F00F9344",
+      "8708A3D2",
+      "1E01F268",
+      "6906C2FE",
+      "F762575D",
+      "806567CB",
+      "196C3671",
+      "6E6B06E7",
+      "FED41B76",
+      "89D32BE0",
+      "10DA7A5A",
+      "67DD4ACC",
+      "F9B9DF6F",
+      "8EBEEFF9",
+      "17B7BE43",
+      "60B08ED5",
+      "D6D6A3E8",
+      "A1D1937E",
+      "38D8C2C4",
+      "4FDFF252",
+      "D1BB67F1",
+      "A6BC5767",
+      "3FB506DD",
+      "48B2364B",
+      "D80D2BDA",
+      "AF0A1B4C",
+      "36034AF6",
+      "41047A60",
+      "DF60EFC3",
+      "A867DF55",
+      "316E8EEF",
+      "4669BE79",
+      "CB61B38C",
+      "BC66831A",
+      "256FD2A0",
+      "5268E236",
+      "CC0C7795",
+      "BB0B4703",
+      "220216B9",
+      "5505262F",
+      "C5BA3BBE",
+      "B2BD0B28",
+      "2BB45A92",
+      "5CB36A04",
+      "C2D7FFA7",
+      "B5D0CF31",
+      "2CD99E8B",
+      "5BDEAE1D",
+      "9B64C2B0",
+      "EC63F226",
+      "756AA39C",
+      "026D930A",
+      "9C0906A9",
+      "EB0E363F",
+      "72076785",
+      "05005713",
+      "95BF4A82",
+      "E2B87A14",
+      "7BB12BAE",
+      "0CB61B38",
+      "92D28E9B",
+      "E5D5BE0D",
+      "7CDCEFB7",
+      "0BDBDF21",
+      "86D3D2D4",
+      "F1D4E242",
+      "68DDB3F8",
+      "1FDA836E",
+      "81BE16CD",
+      "F6B9265B",
+      "6FB077E1",
+      "18B74777",
+      "88085AE6",
+      "FF0F6A70",
+      "66063BCA",
+      "11010B5C",
+      "8F659EFF",
+      "F862AE69",
+      "616BFFD3",
+      "166CCF45",
+      "A00AE278",
+      "D70DD2EE",
+      "4E048354",
+      "3903B3C2",
+      "A7672661",
+      "D06016F7",
+      "4969474D",
+      "3E6E77DB",
+      "AED16A4A",
+      "D9D65ADC",
+      "40DF0B66",
+      "37D83BF0",
+      "A9BCAE53",
+      "DEBB9EC5",
+      "47B2CF7F",
+      "30B5FFE9",
+      "BDBDF21C",
+      "CABAC28A",
+      "53B39330",
+      "24B4A3A6",
+      "BAD03605",
+      "CDD70693",
+      "54DE5729",
+      "23D967BF",
+      "B3667A2E",
+      "C4614AB8",
+      "5D681B02",
+      "2A6F2B94",
+      "B40BBE37",
+      "C30C8EA1",
+      "5A05DF1B",
+      "2D02EF8D"
+    ].join(" ");
+    let crc = 0;
+    let x = 0;
+    let y = 0;
+    crc = crc ^ -1;
+    for (let i = 0, iTop = str.length; i < iTop; i++) {
+      y = (crc ^ str.charCodeAt(i)) & 255;
+      x = "0x" + table.substring(y * 9, y * 9 + 8);
+      crc = crc >>> 8 ^ x;
+    }
+    return crc ^ -1;
+  }
+
+  // app/components/LazyPostPage.js
+  var HttpClient2 = register.HttpClient;
+  var LazyPostPage = class extends BaseComponent {
+    _name = "LazyPostPage";
+    post = null;
+    error = "";
+    message = "";
+    newPost = null;
+    http = null;
+    id = null;
+    constructor(http, id) {
+      super();
+      var $this = this;
+      $this.http = http;
+      $this.id = id;
+    }
+    init() {
+      var $this = this;
+      $this.newPost = new PostModel();
+      $this.newPost.id = 0;
+      $this.newPost.name = "New";
+      $this.http.withInterceptor("SessionInterceptor").get("/api/post/" + $this.id).then(function(post) {
+        $this.post = post;
+        $this.message = "Post has been read successfully";
+      }, function() {
+        $this.error = "Server error";
+      });
+    }
+    clean() {
+      var $this = this;
+      $this.newPost = new PostModel();
+    }
+  };
+  var LazyPostPage_x = [
+    function(_component) {
+      return _component.post ? _component.post.name : "";
+    },
+    function(_component) {
+      return _component.__id;
+    },
+    function(_component) {
+      return _component.__id;
+    },
+    function(_component) {
+      return [function(_component2) {
+        return _component2.newPost.name;
+      }, function(_component2, value) {
+        _component2.newPost.name = value;
+      }];
+    },
+    function(_component) {
+      return "\n            " + (_component.newPost.id ?? "") + " " + (_component.newPost.name ?? "") + "\n        ";
+    },
+    function(_component) {
+      return "\n            " + (json_encode(_component.newPost) ?? "") + "\n        ";
+    },
+    function(_component) {
+      return _component.newPost.name;
+    },
+    function(_component) {
+      return "\n            " + (crc32(_component.newPost.name) ?? "") + "\n        ";
+    },
+    function(_component) {
+      return function(event) {
+        _component.clean(event);
+      };
+    },
+    function(_component) {
+      return "Message: " + (_component.message ?? "");
+    },
+    function(_component) {
+      return "Error: " + (_component.error ?? "");
+    },
+    function(_component) {
+      return _component.post;
+    },
+    function(_component) {
+      return "\n            " + (_component.post.id ?? "") + " " + (_component.post.name ?? "") + "\n        ";
+    }
+  ];
+
+  // app/components/MemberPage.js
+  var MemberPage = class extends BaseComponent {
+    _name = "MemberPage";
+  };
+
+  // app/components/MemberPageNoAccess.js
+  var MemberPageNoAccess = class extends BaseComponent {
+    _name = "MemberPageNoAccess";
+  };
+
+  // app/components/PostPage.js
+  var HttpClient3 = register.HttpClient;
+  var PostPage = class extends BaseComponent {
+    _name = "PostPage";
+    post = null;
+    error = "";
+    message = "";
+    http = null;
+    id = null;
+    constructor(http, id) {
+      super();
+      var $this = this;
+      $this.http = http;
+      $this.id = id;
+    }
+    init() {
+      var $this = this;
+      $this.http.withInterceptor("SessionInterceptor").get("/api/post/" + $this.id).then(function(post) {
+        $this.post = post;
+        $this.message = "Post has been read successfully";
+      }, function() {
+        $this.error = "Server error";
+      });
+    }
+  };
+  var PostPage_x = [
+    function(_component) {
+      return _component.post ? _component.post.name : "";
+    },
+    function(_component) {
+      return "Message: " + (_component.message ?? "");
+    },
+    function(_component) {
+      return "Error: " + (_component.error ?? "");
+    },
+    function(_component) {
+      return _component.post;
+    },
+    function(_component) {
+      return "\n            " + (_component.post.id ?? "") + " " + (_component.post.name ?? "") + "\n        ";
+    }
+  ];
+
+  // app/components/TestLayoutPage.js
+  var TestLayoutPage = class extends BaseComponent {
+    _name = "TestLayoutPage";
+  };
+
+  // app/components/ConfigService.js
+  var Process2 = register.Process;
+  var ConfigService = class {
+    config = null;
+    process = null;
+    constructor(process) {
+      var $this = this;
+      $this.process = process;
+      $this.config = process.getConfig();
+    }
+    getAll() {
+      var $this = this;
+      return $this.config;
+    }
+    get(name) {
+      var $this = this;
+      return $this.config[name] ?? null;
+    }
+  };
 
   // app/functions/count.js
   function count(mixedVar, mode) {
@@ -1775,6 +2185,8 @@
     PanelLayout,
     NotFoundPage,
     CounterPage,
+    LazyPostPage_x,
+    LazyPostPage,
     MemberPage,
     MemberPageNoAccess,
     PostPage_x,
@@ -1913,7 +2325,7 @@
     };
     responseHandler.next(response);
   };
-  var HttpClient3 = class _HttpClient {
+  var HttpClient4 = class _HttpClient {
     interceptors = [];
     request(method, url, body, headers) {
       const $this = this;
@@ -1989,7 +2401,7 @@
 
   // viewi/core/di/setUp.ts
   function setUp() {
-    factory("HttpClient", HttpClient3, () => new HttpClient3());
+    factory("HttpClient", HttpClient4, () => new HttpClient4());
     factory("Process", Process, () => new Process());
   }
 
@@ -2072,10 +2484,9 @@
           for (let id in obj.$$r) {
             const path2 = obj.$$r[id][0];
             const component2 = obj.$$r[id][1];
-            const propertyPath = path2 + "." + prop;
-            if (propertyPath in component2.$$r) {
-              for (let i in component2.$$r[propertyPath]) {
-                const callbackFunc = component2.$$r[propertyPath][i];
+            if (path2 in component2.$$r) {
+              for (let i in component2.$$r[path2]) {
+                const callbackFunc = component2.$$r[path2][i];
                 callbackFunc[0].apply(null, callbackFunc[1]);
               }
             }
@@ -2086,23 +2497,27 @@
     });
     return proxy;
   }
+  function deepProxy(prop, component, value) {
+    if (!(prop in ReserverProps) && value !== null && typeof value === "object" && !Array.isArray(value)) {
+      const activated = makeReactive(value, component, prop);
+      component[prop] = activated;
+      const trackerId = ++reactiveId + "";
+      activated.$$r[trackerId] = [prop, component];
+      component.$$p.push([trackerId, activated]);
+    }
+  }
   function makeProxy(component) {
     let keys = Object.keys(component);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       const val = component[key];
-      if (!(key in ReserverProps) && val !== null && typeof val === "object" && !Array.isArray(val)) {
-        const activated = makeReactive(val, component, key);
-        component[key] = activated;
-        const trackerId = ++reactiveId + "";
-        activated.$$r[trackerId] = [key, component];
-        component.$$p.push([trackerId, activated]);
-      }
+      deepProxy(key, component, val);
     }
     const proxy = new Proxy(component, {
       set(obj, prop, value) {
         const react = obj[prop] !== value;
         const ret = Reflect.set(obj, prop, value);
+        deepProxy(prop, component, value);
         if (react && prop in obj.$$r) {
           for (let i in obj.$$r[prop]) {
             const callbackFunc = obj.$$r[prop][i];

@@ -3,6 +3,7 @@
 use Components\Views\Home\HomePage;
 use Components\Views\NotFound\NotFoundPage;
 use Components\Views\Pages\CounterPage;
+use Components\Views\Pages\LazyPostPage;
 use Components\Views\Pages\MemberPage;
 use Components\Views\Pages\MemberPageNoAccess;
 use Components\Views\Pages\PostPage;
@@ -22,6 +23,7 @@ $router->get('/todo', TodoAppPage::class);
 $router->get('/test', TestPage::class);
 $router->get('/layout-test', TestLayoutPage::class);
 $router->get('/post/{id}', PostPage::class);
+$router->get('/lazy-post/{id}', LazyPostPage::class);
 $router->get('/member', MemberPage::class);
 $router->get('/member-no-access', MemberPageNoAccess::class);
 

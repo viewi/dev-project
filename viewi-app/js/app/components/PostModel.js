@@ -1,5 +1,5 @@
 class PostModel {
-    id = null;
+    id = 0;
     name = null;
 }
 
