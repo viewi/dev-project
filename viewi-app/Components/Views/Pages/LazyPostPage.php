@@ -4,9 +4,11 @@ namespace Components\Views\Pages;
 
 use Components\Models\PostModel;
 use Components\Services\Interceptors\SessionInterceptor;
+use Viewi\Components\Attributes\LazyLoad;
 use Viewi\Components\BaseComponent;
 use Viewi\Components\Http\HttpClient;
 
+#[LazyLoad()]
 class LazyPostPage extends BaseComponent
 {
     public ?PostModel $post = null;
