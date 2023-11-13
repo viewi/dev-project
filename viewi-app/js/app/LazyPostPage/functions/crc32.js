@@ -1,6 +1,4 @@
-import { register } from "../../../viewi/core/di/register";
-
-var utf8_encode = register.utf8_encode;
+import { utf8_encode } from "./utf8_encode";
 
 function crc32(str) {
   //  discuss at: https://locutus.io/php/crc32/

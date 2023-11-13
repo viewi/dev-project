@@ -2,8 +2,65 @@
   // viewi/core/di/register.ts
   var register = {};
 
+  // app/LazyPostPage/functions/utf8_encode.js
+  function utf8_encode(argString) {
+    if (argString === null || typeof argString === "undefined") {
+      return "";
+    }
+    const string = argString + "";
+    let utftext = "";
+    let start;
+    let end;
+    let stringl = 0;
+    start = end = 0;
+    stringl = string.length;
+    for (let n = 0; n < stringl; n++) {
+      let c1 = string.charCodeAt(n);
+      let enc = null;
+      if (c1 < 128) {
+        end++;
+      } else if (c1 > 127 && c1 < 2048) {
+        enc = String.fromCharCode(
+          c1 >> 6 | 192,
+          c1 & 63 | 128
+        );
+      } else if ((c1 & 63488) !== 55296) {
+        enc = String.fromCharCode(
+          c1 >> 12 | 224,
+          c1 >> 6 & 63 | 128,
+          c1 & 63 | 128
+        );
+      } else {
+        if ((c1 & 64512) !== 55296) {
+          throw new RangeError("Unmatched trail surrogate at " + n);
+        }
+        const c2 = string.charCodeAt(++n);
+        if ((c2 & 64512) !== 56320) {
+          throw new RangeError("Unmatched lead surrogate at " + (n - 1));
+        }
+        c1 = ((c1 & 1023) << 10) + (c2 & 1023) + 65536;
+        enc = String.fromCharCode(
+          c1 >> 18 | 240,
+          c1 >> 12 & 63 | 128,
+          c1 >> 6 & 63 | 128,
+          c1 & 63 | 128
+        );
+      }
+      if (enc !== null) {
+        if (end > start) {
+          utftext += string.slice(start, end);
+        }
+        utftext += enc;
+        start = end = n + 1;
+      }
+    }
+    if (end > start) {
+      utftext += string.slice(start, stringl);
+    }
+    return utftext;
+  }
+
   // app/LazyPostPage/functions/crc32.js
-  var utf8_encode = register.utf8_encode;
   function crc32(str) {
     str = utf8_encode(str);
     const table = [
@@ -361,10 +418,12 @@
       return "\n            " + (_component.post.id ?? "") + " " + (_component.post.name ?? "") + "\n        ";
     }
   ];
+  var LazyPostPage_t = '{"hooks":{"init":1},"dependencies":[{"argName":"http","name":"HttpClient"},{"argName":"id","name":"int","builtIn":1}],"lazy":"LazyPostPage","base":1,"parent":"Layout","nodes":{"c":null,"t":"r","h":[{"c":"Layout","t":"c","slots":{"default":{"c":null,"t":"r","h":[{"c":"\\n    ","t":"x"},{"c":"h1","t":"t","h":[{"c":"Post","t":"x"}]},{"c":"\\n    ","t":"x"},{"c":"div","t":"t","a":[{"c":"class","t":"a","h":[{"c":"mui-container-fluid"}]}],"h":[{"c":"\\n        ","t":"x"},{"c":"h3","t":"t","h":[{"c":"New post","t":"x"}]},{"c":"\\n        ","t":"x"},{"c":"label","t":"t","a":[{"c":"for","t":"a","h":[{"e":1,"code":1,"subs":["__id"]}]}],"h":[{"c":"Name","t":"x"}]},{"c":"\\n        ","t":"x"},{"c":"input","t":"t","a":[{"c":"id","t":"a","h":[{"e":1,"code":2,"subs":["__id"]}]},{"c":"type","t":"a","h":[{"c":"text"}]},{"c":"model","t":"a","h":[{"e":1,"code":3,"subs":["newPost","newPost.name","value"]}]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":4,"subs":["newPost","newPost.id","newPost.name"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":5,"subs":["newPost"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","a":[{"c":"id","t":"a","h":[{"e":1,"code":6,"subs":["newPost","newPost.name"]}]}],"h":[{"t":"x","e":1,"code":7,"subs":["newPost","newPost.name"]}]},{"c":"\\n        ","t":"x"},{"c":"button","t":"t","a":[{"c":"class","t":"a","h":[{"c":"mui-btn mui-btn--accent"}]},{"c":"(click)","t":"a","h":[{"e":1,"code":8}]}],"h":[{"c":"Clean","t":"x"}]},{"c":"\\n    ","t":"x"}]},{"c":"\\n    ","t":"x"},{"c":"hr","t":"t"},{"c":"\\n    ","t":"x"},{"c":"div","t":"t","a":[{"c":"class","t":"a","h":[{"c":"mui-container-fluid"}]}],"h":[{"c":"\\n        ","t":"x"},{"c":"h3","t":"t","h":[{"c":"Current post","t":"x"}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":9,"subs":["message"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":10,"subs":["error"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","i":[{"c":"if","t":"a","h":[{"e":1,"code":11,"subs":["post"]}]}],"h":[{"t":"x","e":1,"code":12,"subs":["post","post.id","post.name"]}]},{"c":"\\n    ","t":"x"}]},{"c":"\\n","t":"x"}]}},"a":[{"c":"title","t":"a","h":[{"c":"Post "},{"e":1,"code":0,"subs":["post","post.post.name"]}]}],"h":[{"c":"\\n    ","t":"x"},{"c":"h1","t":"t","h":[{"c":"Post","t":"x"}]},{"c":"\\n    ","t":"x"},{"c":"div","t":"t","a":[{"c":"class","t":"a","h":[{"c":"mui-container-fluid"}]}],"h":[{"c":"\\n        ","t":"x"},{"c":"h3","t":"t","h":[{"c":"New post","t":"x"}]},{"c":"\\n        ","t":"x"},{"c":"label","t":"t","a":[{"c":"for","t":"a","h":[{"e":1,"code":1,"subs":["__id"]}]}],"h":[{"c":"Name","t":"x"}]},{"c":"\\n        ","t":"x"},{"c":"input","t":"t","a":[{"c":"id","t":"a","h":[{"e":1,"code":2,"subs":["__id"]}]},{"c":"type","t":"a","h":[{"c":"text"}]},{"c":"model","t":"a","h":[{"e":1,"code":3,"subs":["newPost","newPost.name","value"]}]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":4,"subs":["newPost","newPost.id","newPost.name"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":5,"subs":["newPost"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","a":[{"c":"id","t":"a","h":[{"e":1,"code":6,"subs":["newPost","newPost.name"]}]}],"h":[{"t":"x","e":1,"code":7,"subs":["newPost","newPost.name"]}]},{"c":"\\n        ","t":"x"},{"c":"button","t":"t","a":[{"c":"class","t":"a","h":[{"c":"mui-btn mui-btn--accent"}]},{"c":"(click)","t":"a","h":[{"e":1,"code":8}]}],"h":[{"c":"Clean","t":"x"}]},{"c":"\\n    ","t":"x"}]},{"c":"\\n    ","t":"x"},{"c":"hr","t":"t"},{"c":"\\n    ","t":"x"},{"c":"div","t":"t","a":[{"c":"class","t":"a","h":[{"c":"mui-container-fluid"}]}],"h":[{"c":"\\n        ","t":"x"},{"c":"h3","t":"t","h":[{"c":"Current post","t":"x"}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":9,"subs":["message"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","h":[{"t":"x","e":1,"code":10,"subs":["error"]}]},{"c":"\\n        ","t":"x"},{"c":"div","t":"t","i":[{"c":"if","t":"a","h":[{"e":1,"code":11,"subs":["post"]}]}],"h":[{"t":"x","e":1,"code":12,"subs":["post","post.id","post.name"]}]},{"c":"\\n    ","t":"x"}]},{"c":"\\n","t":"x"}]}]}}';
 
   // app/LazyPostPage/components/index.js
   var components = {
     LazyPostPage_x,
+    LazyPostPage_t,
     LazyPostPage
   };
 })();
