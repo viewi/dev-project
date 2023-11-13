@@ -1,3 +1,4 @@
 export const resources = {
-    componentsPath: '/assets/components.json'
+    componentsPath: '/assets/components.json',
+    publicPath: '/assets/'
 };
