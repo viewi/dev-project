@@ -1,6 +1,17 @@
 (() => {
+  // app/main/resources/index.js
+  var resources = {
+    componentsPath: "/assets/components.json",
+    publicPath: "/assets/",
+    name: "default",
+    minify: false,
+    appendVersion: false,
+    build: "Lhr7253H",
+    version: "2.0.0"
+  };
+
   // viewi/core/di/register.ts
-  var register = window.ViewiApp ? window.ViewiApp.Viewi.register : {};
+  var register = window.ViewiApp ? window.ViewiApp[resources.name].register : {};
 
   // app/LazyPostPage/functions/utf8_encode.js
   function utf8_encode(argString) {
@@ -426,5 +437,5 @@
     LazyPostPage_t,
     LazyPostPage
   };
-  window.ViewiApp.Viewi.publish("LazyPostPage", components);
+  window.ViewiApp.default.publish("LazyPostPage", components);
 })();

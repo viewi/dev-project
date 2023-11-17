@@ -25,8 +25,19 @@
     }
   };
 
+  // app/main/resources/index.js
+  var resources = {
+    componentsPath: "/assets/components.json",
+    publicPath: "/assets/",
+    name: "default",
+    minify: false,
+    appendVersion: false,
+    build: "Lhr7253H",
+    version: "2.0.0"
+  };
+
   // viewi/core/di/register.ts
-  var register = window.ViewiApp ? window.ViewiApp.Viewi.register : {};
+  var register = window.ViewiApp ? window.ViewiApp[resources.name].register : {};
 
   // app/main/components/SessionInterceptor.js
   var HttpClient = register.HttpClient;
@@ -1440,12 +1451,6 @@
     strlen,
     count,
     json_encode
-  };
-
-  // app/main/resources/index.js
-  var resources = {
-    componentsPath: "/assets/components.json",
-    publicPath: "/assets/"
   };
 
   // viewi/core/router/routeItem.ts
@@ -3488,7 +3493,7 @@
     }
     const info = componentsMeta.list[name];
     if (info.lazy && !(info.lazy in lazyRecords)) {
-      const scriptUrl = resources.publicPath + "viewi." + info.lazy + ".js";
+      const scriptUrl = resources.publicPath + "viewi." + info.lazy + (resources.minify ? ".min" : "") + ".js" + (resources.appendVersion ? "?" + resources.build : "");
       injectScript(scriptUrl);
       delay.postpone(info.lazy, function() {
         lazyRecords[info.lazy] = true;
@@ -3612,9 +3617,11 @@
   }
 
   // viewi/index.ts
-  var Viewi = {
+  var ViewiApp = {
     register: {},
-    version: "2.0.0",
+    version: resources.version,
+    build: resources.build,
+    name: resources.name,
     publish(group, importComponents) {
       for (let name in importComponents) {
         if (!(name in components)) {
@@ -3629,7 +3636,8 @@
       delay.ready(group);
     }
   };
-  window.ViewiApp = { Viewi };
+  window.ViewiApp = window.ViewiApp || {};
+  window.ViewiApp[resources.name] = ViewiApp;
   (async () => {
     const data = await (await fetch(resources.componentsPath)).json();
     componentsMeta.list = data;
@@ -3640,7 +3648,7 @@
       componentsMeta.booleanAttributes[booleanArray[i]] = true;
     }
     setUp();
-    Viewi.register = { ...components, ...register, ...functions };
+    ViewiApp.register = { ...components, ...register, ...functions };
     watchLinks();
     handleUrl(location.href);
   })();
