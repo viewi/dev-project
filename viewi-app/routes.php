@@ -1,5 +1,6 @@
 <?php
 
+use Components\Views\CustomJs\CustomJsPage;
 use Components\Views\Home\HomePage;
 use Components\Views\NotFound\NotFoundPage;
 use Components\Views\Pages\CounterPage;
@@ -21,6 +22,8 @@ $router->get('/', HomePage::class);
 $router->get('/counter', CounterPage::class);
 $router->get('/todo', TodoAppPage::class);
 $router->get('/test', TestPage::class);
+$router->get('/marked', CustomJsPage::class);
+
 $router->get('/layout-test', TestLayoutPage::class);
 $router->get('/post/{id}', PostPage::class);
 $router->get('/lazy-post/{id}', LazyPostPage::class);

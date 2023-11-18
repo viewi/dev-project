@@ -10,6 +10,7 @@ import { DemoContainer } from "./DemoContainer";
 import { MenuBar } from "./MenuBar";
 import { ViewiIcon } from "./ViewiIcon";
 import { Counter, Counter_x } from "./Counter";
+import { CustomJsPage, CustomJsPage_x } from "./CustomJsPage";
 import { HomePage, HomePage_x } from "./HomePage";
 import { AreaLayout, AreaLayout_x } from "./AreaLayout";
 import { Layout, Layout_x } from "./Layout";
@@ -48,6 +49,8 @@ export const components = {
     ViewiIcon,
     Counter_x,
     Counter,
+    CustomJsPage_x,
+    CustomJsPage,
     HomePage_x,
     HomePage,
     AreaLayout_x,

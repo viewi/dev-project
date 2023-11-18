@@ -3,6 +3,7 @@
     "build": "node ./build.mjs"
   },
   "dependencies": {
-    "esbuild": "0.18.17"
+    "esbuild": "0.18.17",
+    "marked": "^10.0.0"
   }
 }

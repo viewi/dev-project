@@ -1,0 +1,16 @@
+<Layout title="$title">
+    <h1>$title</h1>
+    <h3>Input</h3>
+    <label for="markdown-text">
+        Enter some markdown
+    </label>
+    <div>
+        <textarea id="markdown-text" rows="10" model="$markText" style="width: 100%;"></textarea>
+    </div>
+    <h3>Input:</h3>
+    <div>
+        <pre>$markText</pre>
+    </div>
+    <h3>Output:</h3>
+    <div>{{getMarkedHtml($markText)}}</div>
+</Layout>
