@@ -1,12 +1,13 @@
 (() => {
   // app/main/resources/index.js
   var resources = {
-    componentsPath: "/assets/components.json",
+    componentsPath: "/assets/viewi.demo.json",
     publicPath: "/assets/",
-    name: "default",
+    name: "demo",
     minify: false,
+    combine: false,
     appendVersion: false,
-    build: "Lhr7253H",
+    build: "VVI5i4Dy",
     version: "2.0.0"
   };
 
@@ -437,5 +438,5 @@
     LazyPostPage_t,
     LazyPostPage
   };
-  window.ViewiApp.default.publish("LazyPostPage", components);
+  window.ViewiApp.demo.publish("LazyPostPage", components);
 })();

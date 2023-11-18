@@ -5,4 +5,5 @@ export const components = {
     LazyPostPage_t,
     LazyPostPage,
 };
-window.ViewiApp.default.publish("LazyPostPage", components);
+
+window.ViewiApp.demo.publish("LazyPostPage", components);

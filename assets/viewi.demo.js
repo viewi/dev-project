@@ -1,371 +1,4 @@
 (() => {
-  // app/main/resources/index.js
-  var resources = {
-    componentsPath: "/assets/components.json"
-  };
-
-  // viewi/core/router/routeItem.ts
-  var RouteItem = class {
-    method;
-    url;
-    action;
-    wheres;
-    defaults = null;
-    constructor(method, url, action, defaults = null, wheres) {
-      this.method = method;
-      this.url = url;
-      this.action = action;
-      this.wheres = {};
-      this.defaults = defaults;
-      if (wheres) {
-        this.wheres = wheres;
-      }
-    }
-    where(wheresOrName, expr) {
-      if (wheresOrName !== null && typeof wheresOrName === "object") {
-        this.wheres = Object.assign(this.where, wheresOrName);
-      } else if (expr) {
-        this.wheres[wheresOrName] = expr;
-      }
-      return this;
-    }
-  };
-
-  // viewi/core/router/router.ts
-  var Router = class {
-    routes;
-    trimExpr = /^\/|\/$/g;
-    setRoutes(routeList) {
-      this.routes = routeList;
-    }
-    getRoutes() {
-      return this.routes;
-    }
-    register(method, url, action, defaults = null, wheres) {
-      const item = new RouteItem(
-        method.toLowerCase(),
-        url,
-        action,
-        defaults,
-        wheres
-      );
-      this.routes.push(item);
-      return item;
-    }
-    get(url, action) {
-      return this.register("get", url, action);
-    }
-    resolve(url) {
-      url = url.replace(this.trimExpr, "");
-      const parts = url.split("/");
-      for (let k in this.routes) {
-        const params = {};
-        let valid = true;
-        const item = this.routes[k];
-        const targetUrl = item.url.replace(this.trimExpr, "");
-        const targetParts = targetUrl.split("/");
-        let pi = 0;
-        let skipAll = false;
-        for (pi; pi < targetParts.length; pi++) {
-          const urlExpr = targetParts[pi];
-          const hasWildCard = urlExpr.indexOf("*") !== -1;
-          if (hasWildCard) {
-            const beginning = urlExpr.slice(0, -1);
-            if (!beginning || parts[pi].indexOf(beginning) === 0) {
-              skipAll = true;
-              break;
-            }
-          }
-          const hasParams = urlExpr.indexOf("{") !== -1;
-          if (urlExpr !== parts[pi] && !hasParams) {
-            valid = false;
-            break;
-          }
-          if (hasParams) {
-            const bracketParts = urlExpr.split(/[{}]+/);
-            let paramName = bracketParts[1];
-            if (paramName[paramName.length - 1] === "?") {
-              paramName = paramName.slice(0, -1);
-            } else if (pi >= parts.length) {
-              valid = false;
-              break;
-            }
-            if (paramName.indexOf("<") !== -1) {
-              const matches = /<([^>]+)>/.exec(paramName);
-              if (matches) {
-                paramName = paramName.replace(/<([^>]+)>/g, "");
-                item.wheres[paramName] = matches[1];
-              }
-            }
-            if (item.wheres[paramName]) {
-              const regex = new RegExp(item.wheres[paramName], "g");
-              if (!regex.test(parts[pi])) {
-                valid = false;
-                break;
-              }
-              regex.lastIndex = 0;
-              if (regex.test("/")) {
-                skipAll = true;
-              }
-            }
-            let paramValue = pi < parts.length ? parts[pi] : null;
-            if (paramValue && bracketParts[0]) {
-              if (paramValue.indexOf(bracketParts[0]) !== 0) {
-                valid = false;
-                break;
-              } else {
-                paramValue = paramValue.slice(bracketParts[0].length);
-              }
-            }
-            params[paramName] = paramValue;
-            if (skipAll) {
-              params[paramName] = parts.slice(pi).join("/");
-              break;
-            }
-          }
-        }
-        if (pi < parts.length && !skipAll) {
-          valid = false;
-        }
-        if (valid) {
-          return { item, params };
-        }
-      }
-      return null;
-    }
-  };
-
-  // viewi/core/component/componentsMeta.ts
-  var componentsMeta = {
-    list: {},
-    config: {},
-    booleanAttributes: {},
-    router: new Router()
-  };
-
-  // viewi/core/environment/process.ts
-  var Process = class {
-    browser = true;
-    server = false;
-    getConfig() {
-      return componentsMeta.config;
-    }
-  };
-
-  // viewi/core/events/resolver.ts
-  var Resolver = class {
-    onSuccess;
-    onError = null;
-    onAlways = null;
-    result = null;
-    lastError = null;
-    action;
-    constructor(action) {
-      this.action = action;
-    }
-    error(onError) {
-      this.onError = onError;
-    }
-    success(onSuccess) {
-      this.onSuccess = onSuccess;
-    }
-    always(always) {
-      this.onAlways = always;
-    }
-    run() {
-      const $this = this;
-      this.action(function(result, error) {
-        $this.result = result;
-        let throwError = false;
-        if (error) {
-          $this.lastError = error;
-          if ($this.onError !== null) {
-            $this.onError(error);
-          } else {
-            throwError = true;
-          }
-        } else {
-          $this.onSuccess($this.result);
-        }
-        if ($this.onAlways != null) {
-          $this.onAlways();
-        }
-        if (throwError) {
-          throw $this.lastError;
-        }
-      });
-    }
-    then(onSuccess, onError, always) {
-      this.onSuccess = onSuccess;
-      if (onError) {
-        this.onError = onError;
-      }
-      if (always) {
-        this.onAlways = always;
-      }
-      this.run();
-    }
-  };
-
-  // viewi/core/lifecycle/scopeState.ts
-  function getScopeState() {
-    const scopedResponseData = window.viewiScopeState;
-    return scopedResponseData ?? { http: {}, state: {} };
-  }
-
-  // viewi/core/helpers/isBlob.ts
-  function isBlob(data) {
-    if ("Blob" in window && data instanceof Blob) {
-      return true;
-    }
-    return false;
-  }
-
-  // viewi/core/http/response.ts
-  var Response = class _Response {
-    url;
-    status;
-    statusText;
-    headers = {};
-    body = null;
-    constructor(url, status, statusText, headers = {}, body = null) {
-      this.url = url;
-      this.status = status;
-      this.statusText = statusText;
-      this.headers = headers;
-      this.body = body;
-    }
-    withUrl(url) {
-      var clone = this.clone();
-      clone.url = url;
-      return clone;
-    }
-    withStatus(status, statusText = null) {
-      var clone = this.clone();
-      clone.status = status;
-      if (statusText !== null) {
-        clone.statusText = statusText;
-      }
-      return clone;
-    }
-    withHeaders(headers) {
-      var clone = this.clone();
-      clone.headers = { ...clone.headers, ...headers };
-      return clone;
-    }
-    withHeader(name, value) {
-      var clone = this.clone();
-      clone.headers[name] = value;
-      return clone;
-    }
-    withBody(body = null) {
-      var clone = this.clone();
-      clone.body = body;
-      return clone;
-    }
-    ok() {
-      return this.status >= 200 && this.status < 300;
-    }
-    clone() {
-      var clone = new _Response(this.url, this.status, this.statusText, this.headers, this.body);
-      return clone;
-    }
-  };
-
-  // viewi/core/http/runRequest.ts
-  function runRequest(callback, type, url, data, headers) {
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-      if (request.readyState === 4) {
-        const status = request.status;
-        const contentType = request.getResponseHeader("Content-Type");
-        const itsJson = contentType && contentType.indexOf("application/json") === 0;
-        const raw = request.responseText;
-        let content = raw;
-        if (itsJson) {
-          content = JSON.parse(request.responseText);
-        }
-        const headers2 = {};
-        const headersString = request.getAllResponseHeaders();
-        if (headersString) {
-          const headersArray = headersString.trim().split(/[\r\n]+/);
-          for (let i = 0; i < headersArray.length; i++) {
-            const line = headersArray[i];
-            const parts = line.split(": ");
-            const header = parts.shift();
-            if (header) {
-              const value = parts.join(": ");
-              headers2[header] = value;
-            }
-          }
-          ;
-        }
-        const response = new Response(url, status, "", headers2, content);
-        callback(response);
-      }
-    };
-    const isJson = data !== null && typeof data === "object" && !isBlob(data);
-    request.open(type.toUpperCase(), url, true);
-    if (isJson) {
-      request.setRequestHeader("Content-Type", "application/json");
-    }
-    if (headers) {
-      for (const h in headers) {
-        if (Array.isArray(headers[h])) {
-          for (let i = 0; i < headers[h].length; i++) {
-            request.setRequestHeader(h, headers[h][i]);
-          }
-        } else {
-          request.setRequestHeader(h, headers[h]);
-        }
-      }
-    }
-    data !== null ? request.send(isJson ? JSON.stringify(data) : data) : request.send();
-  }
-
-  // viewi/core/http/request.ts
-  var Request = class _Request {
-    url;
-    method;
-    headers = {};
-    body = null;
-    constructor(url, method, headers = {}, body = null) {
-      this.url = url;
-      this.method = method;
-      this.headers = headers;
-      this.body = body;
-    }
-    withMethod(method) {
-      var clone = this.clone();
-      clone.method = method;
-      return clone;
-    }
-    withUrl(url) {
-      var clone = this.clone();
-      clone.url = url;
-      return clone;
-    }
-    withHeaders(headers) {
-      var clone = this.clone();
-      clone.headers = { ...clone.headers, ...headers };
-      return clone;
-    }
-    withHeader(name, value) {
-      var clone = this.clone();
-      clone.headers[name] = value;
-      return clone;
-    }
-    withBody(body = null) {
-      var clone = this.clone();
-      clone.body = body;
-      return clone;
-    }
-    clone() {
-      var clone = new _Request(this.url, this.method, this.headers, this.body);
-      return clone;
-    }
-  };
-
   // app/main/components/PostModel.js
   var PostModel = class {
     id = 0;
@@ -392,8 +25,20 @@
     }
   };
 
+  // app/main/resources/index.js
+  var resources = {
+    componentsPath: "/assets/viewi.demo.json",
+    publicPath: "/assets/",
+    name: "demo",
+    minify: false,
+    combine: false,
+    appendVersion: false,
+    build: "VVI5i4Dy",
+    version: "2.0.0"
+  };
+
   // viewi/core/di/register.ts
-  var register = {};
+  var register = window.ViewiApp ? window.ViewiApp[resources.name].register : {};
 
   // app/main/components/SessionInterceptor.js
   var HttpClient = register.HttpClient;
@@ -784,7 +429,7 @@
   };
 
   // app/main/components/ConfigService.js
-  var Process2 = register.Process;
+  var Process = register.Process;
   var ConfigService = class {
     config = null;
     process = null;
@@ -1675,7 +1320,7 @@
   ];
 
   // app/main/components/TestPage.js
-  var Process3 = register.Process;
+  var Process2 = register.Process;
   var TestPage = class extends BaseComponent {
     _name = "TestPage";
     baseUrl = "";
@@ -1801,6 +1446,391 @@
     ViewiAssets,
     ConfigService
   };
+  var templates = "{}";
+
+  // app/main/functions/index.js
+  var functions = {
+    strlen,
+    count,
+    json_encode
+  };
+
+  // viewi/core/router/routeItem.ts
+  var RouteItem = class {
+    method;
+    url;
+    action;
+    wheres;
+    defaults = null;
+    constructor(method, url, action, defaults = null, wheres) {
+      this.method = method;
+      this.url = url;
+      this.action = action;
+      this.wheres = {};
+      this.defaults = defaults;
+      if (wheres) {
+        this.wheres = wheres;
+      }
+    }
+    where(wheresOrName, expr) {
+      if (wheresOrName !== null && typeof wheresOrName === "object") {
+        this.wheres = Object.assign(this.where, wheresOrName);
+      } else if (expr) {
+        this.wheres[wheresOrName] = expr;
+      }
+      return this;
+    }
+  };
+
+  // viewi/core/router/router.ts
+  var Router = class {
+    routes;
+    trimExpr = /^\/|\/$/g;
+    setRoutes(routeList) {
+      this.routes = routeList;
+    }
+    getRoutes() {
+      return this.routes;
+    }
+    register(method, url, action, defaults = null, wheres) {
+      const item = new RouteItem(
+        method.toLowerCase(),
+        url,
+        action,
+        defaults,
+        wheres
+      );
+      this.routes.push(item);
+      return item;
+    }
+    get(url, action) {
+      return this.register("get", url, action);
+    }
+    resolve(url) {
+      url = url.replace(this.trimExpr, "");
+      const parts = url.split("/");
+      for (let k in this.routes) {
+        const params = {};
+        let valid = true;
+        const item = this.routes[k];
+        const targetUrl = item.url.replace(this.trimExpr, "");
+        const targetParts = targetUrl.split("/");
+        let pi = 0;
+        let skipAll = false;
+        for (pi; pi < targetParts.length; pi++) {
+          const urlExpr = targetParts[pi];
+          const hasWildCard = urlExpr.indexOf("*") !== -1;
+          if (hasWildCard) {
+            const beginning = urlExpr.slice(0, -1);
+            if (!beginning || parts[pi].indexOf(beginning) === 0) {
+              skipAll = true;
+              break;
+            }
+          }
+          const hasParams = urlExpr.indexOf("{") !== -1;
+          if (urlExpr !== parts[pi] && !hasParams) {
+            valid = false;
+            break;
+          }
+          if (hasParams) {
+            const bracketParts = urlExpr.split(/[{}]+/);
+            let paramName = bracketParts[1];
+            if (paramName[paramName.length - 1] === "?") {
+              paramName = paramName.slice(0, -1);
+            } else if (pi >= parts.length) {
+              valid = false;
+              break;
+            }
+            if (paramName.indexOf("<") !== -1) {
+              const matches = /<([^>]+)>/.exec(paramName);
+              if (matches) {
+                paramName = paramName.replace(/<([^>]+)>/g, "");
+                item.wheres[paramName] = matches[1];
+              }
+            }
+            if (item.wheres[paramName]) {
+              const regex = new RegExp(item.wheres[paramName], "g");
+              if (!regex.test(parts[pi])) {
+                valid = false;
+                break;
+              }
+              regex.lastIndex = 0;
+              if (regex.test("/")) {
+                skipAll = true;
+              }
+            }
+            let paramValue = pi < parts.length ? parts[pi] : null;
+            if (paramValue && bracketParts[0]) {
+              if (paramValue.indexOf(bracketParts[0]) !== 0) {
+                valid = false;
+                break;
+              } else {
+                paramValue = paramValue.slice(bracketParts[0].length);
+              }
+            }
+            params[paramName] = paramValue;
+            if (skipAll) {
+              params[paramName] = parts.slice(pi).join("/");
+              break;
+            }
+          }
+        }
+        if (pi < parts.length && !skipAll) {
+          valid = false;
+        }
+        if (valid) {
+          return { item, params };
+        }
+      }
+      return null;
+    }
+  };
+
+  // viewi/core/component/componentsMeta.ts
+  var componentsMeta = {
+    list: {},
+    config: {},
+    booleanAttributes: {},
+    router: new Router()
+  };
+
+  // viewi/core/di/delay.ts
+  var delayedQueue = {};
+  var delay = {
+    postpone: function(name, callback) {
+      delayedQueue[name] = callback;
+    },
+    ready: function(name) {
+      if (!(name in delayedQueue)) {
+        throw new Error("There is no postponed action for " + name);
+      }
+      delayedQueue[name]();
+      delete delayedQueue[name];
+    }
+  };
+
+  // viewi/core/environment/process.ts
+  var Process3 = class {
+    browser = true;
+    server = false;
+    getConfig() {
+      return componentsMeta.config;
+    }
+  };
+
+  // viewi/core/events/resolver.ts
+  var Resolver = class {
+    onSuccess;
+    onError = null;
+    onAlways = null;
+    result = null;
+    lastError = null;
+    action;
+    constructor(action) {
+      this.action = action;
+    }
+    error(onError) {
+      this.onError = onError;
+    }
+    success(onSuccess) {
+      this.onSuccess = onSuccess;
+    }
+    always(always) {
+      this.onAlways = always;
+    }
+    run() {
+      const $this = this;
+      this.action(function(result, error) {
+        $this.result = result;
+        let throwError = false;
+        if (error) {
+          $this.lastError = error;
+          if ($this.onError !== null) {
+            $this.onError(error);
+          } else {
+            throwError = true;
+          }
+        } else {
+          $this.onSuccess($this.result);
+        }
+        if ($this.onAlways != null) {
+          $this.onAlways();
+        }
+        if (throwError) {
+          throw $this.lastError;
+        }
+      });
+    }
+    then(onSuccess, onError, always) {
+      this.onSuccess = onSuccess;
+      if (onError) {
+        this.onError = onError;
+      }
+      if (always) {
+        this.onAlways = always;
+      }
+      this.run();
+    }
+  };
+
+  // viewi/core/lifecycle/scopeState.ts
+  function getScopeState() {
+    const scopedResponseData = window.viewiScopeState;
+    return scopedResponseData ?? { http: {}, state: {} };
+  }
+
+  // viewi/core/helpers/isBlob.ts
+  function isBlob(data) {
+    if ("Blob" in window && data instanceof Blob) {
+      return true;
+    }
+    return false;
+  }
+
+  // viewi/core/http/response.ts
+  var Response = class _Response {
+    url;
+    status;
+    statusText;
+    headers = {};
+    body = null;
+    constructor(url, status, statusText, headers = {}, body = null) {
+      this.url = url;
+      this.status = status;
+      this.statusText = statusText;
+      this.headers = headers;
+      this.body = body;
+    }
+    withUrl(url) {
+      var clone = this.clone();
+      clone.url = url;
+      return clone;
+    }
+    withStatus(status, statusText = null) {
+      var clone = this.clone();
+      clone.status = status;
+      if (statusText !== null) {
+        clone.statusText = statusText;
+      }
+      return clone;
+    }
+    withHeaders(headers) {
+      var clone = this.clone();
+      clone.headers = { ...clone.headers, ...headers };
+      return clone;
+    }
+    withHeader(name, value) {
+      var clone = this.clone();
+      clone.headers[name] = value;
+      return clone;
+    }
+    withBody(body = null) {
+      var clone = this.clone();
+      clone.body = body;
+      return clone;
+    }
+    ok() {
+      return this.status >= 200 && this.status < 300;
+    }
+    clone() {
+      var clone = new _Response(this.url, this.status, this.statusText, this.headers, this.body);
+      return clone;
+    }
+  };
+
+  // viewi/core/http/runRequest.ts
+  function runRequest(callback, type, url, data, headers) {
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+      if (request.readyState === 4) {
+        const status = request.status;
+        const contentType = request.getResponseHeader("Content-Type");
+        const itsJson = contentType && contentType.indexOf("application/json") === 0;
+        const raw = request.responseText;
+        let content = raw;
+        if (itsJson) {
+          content = JSON.parse(request.responseText);
+        }
+        const headers2 = {};
+        const headersString = request.getAllResponseHeaders();
+        if (headersString) {
+          const headersArray = headersString.trim().split(/[\r\n]+/);
+          for (let i = 0; i < headersArray.length; i++) {
+            const line = headersArray[i];
+            const parts = line.split(": ");
+            const header = parts.shift();
+            if (header) {
+              const value = parts.join(": ");
+              headers2[header] = value;
+            }
+          }
+          ;
+        }
+        const response = new Response(url, status, "", headers2, content);
+        callback(response);
+      }
+    };
+    const isJson = data !== null && typeof data === "object" && !isBlob(data);
+    request.open(type.toUpperCase(), url, true);
+    if (isJson) {
+      request.setRequestHeader("Content-Type", "application/json");
+    }
+    if (headers) {
+      for (const h in headers) {
+        if (Array.isArray(headers[h])) {
+          for (let i = 0; i < headers[h].length; i++) {
+            request.setRequestHeader(h, headers[h][i]);
+          }
+        } else {
+          request.setRequestHeader(h, headers[h]);
+        }
+      }
+    }
+    data !== null ? request.send(isJson ? JSON.stringify(data) : data) : request.send();
+  }
+
+  // viewi/core/http/request.ts
+  var Request = class _Request {
+    url;
+    method;
+    headers = {};
+    body = null;
+    constructor(url, method, headers = {}, body = null) {
+      this.url = url;
+      this.method = method;
+      this.headers = headers;
+      this.body = body;
+    }
+    withMethod(method) {
+      var clone = this.clone();
+      clone.method = method;
+      return clone;
+    }
+    withUrl(url) {
+      var clone = this.clone();
+      clone.url = url;
+      return clone;
+    }
+    withHeaders(headers) {
+      var clone = this.clone();
+      clone.headers = { ...clone.headers, ...headers };
+      return clone;
+    }
+    withHeader(name, value) {
+      var clone = this.clone();
+      clone.headers[name] = value;
+      return clone;
+    }
+    withBody(body = null) {
+      var clone = this.clone();
+      clone.body = body;
+      return clone;
+    }
+    clone() {
+      var clone = new _Request(this.url, this.method, this.headers, this.body);
+      return clone;
+    }
+  };
 
   // viewi/core/di/factory.ts
   var factoryContainer = {};
@@ -1880,7 +1910,6 @@
     const total = interceptorInstances.length;
     let current = total;
     const lastCall = function(response2, keepGoing) {
-      console.log(response2, keepGoing);
       if (keepGoing && response2.status >= 200 && response2.status < 300) {
         callback(response2.body);
       } else {
@@ -1987,12 +2016,22 @@
 
   // viewi/core/di/setUp.ts
   function setUp() {
+    register["BaseComponent"] = BaseComponent;
     factory("HttpClient", HttpClient3, () => new HttpClient3());
-    factory("Process", Process, () => new Process());
+    factory("Process", Process3, () => new Process3());
   }
 
   // viewi/core/anchor/anchors.ts
   var anchors = {};
+
+  // viewi/core/http/injectScript.ts
+  function injectScript(url) {
+    const head = document.head;
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    head.appendChild(script);
+  }
 
   // viewi/core/lifecycle/dispose.ts
   function dispose(scope) {
@@ -3449,13 +3488,20 @@
   }
 
   // viewi/core/render/renderApp.ts
+  var lazyRecords = {};
   function renderApp(name, params, target, onAccept, skipMiddleware) {
     if (!(name in componentsMeta.list)) {
       throw new Error(`Component ${name} not found.`);
     }
     const info = componentsMeta.list[name];
-    if (info.lazy) {
-      console.warn("Lazy loading not implemented", info);
+    if (info.lazy && !(info.lazy in lazyRecords)) {
+      const baseName = "viewi" + (resources.name === "default" ? "" : "." + resources.name);
+      const scriptUrl = resources.publicPath + baseName + "." + info.lazy + (resources.minify ? ".min" : "") + ".js" + (resources.appendVersion ? "?" + resources.build : "");
+      injectScript(scriptUrl);
+      delay.postpone(info.lazy, function() {
+        lazyRecords[info.lazy] = true;
+        renderApp(name, params, target, onAccept, skipMiddleware);
+      });
       return;
     }
     const hydrate = globalScope.hydrate;
@@ -3476,14 +3522,11 @@
           current++;
           if (globalAllow && current < total) {
             const middleware = resolve(info.middleware[current]);
-            console.log("Running middleware", middleware);
             middleware.run(context);
           } else {
             if (globalAllow) {
-              console.log("Ready to render", globalAllow);
               renderApp(name, params, target, onAccept, true);
             } else {
-              console.log("Access denied", globalAllow);
             }
           }
         }
@@ -3577,13 +3620,32 @@
   }
 
   // viewi/index.ts
-  var Viewi = () => ({
-    version: "2.0.1"
-  });
-  globalThis.Viewi = Viewi;
-  console.log("Viewi entry");
+  var ViewiApp = {
+    register: {},
+    version: resources.version,
+    build: resources.build,
+    name: resources.name,
+    publish(group, importComponents) {
+      for (let name in importComponents) {
+        if (!(name in components)) {
+          const imortItem = importComponents[name];
+          if (imortItem._t === "template") {
+            componentsMeta.list[imortItem.name] = JSON.parse(imortItem.data);
+          } else {
+            components[name] = imortItem;
+          }
+        }
+      }
+      delay.ready(group);
+    }
+  };
+  window.ViewiApp = window.ViewiApp || {};
+  window.ViewiApp[resources.name] = ViewiApp;
   (async () => {
-    const data = await (await fetch(resources.componentsPath)).json();
+    let data = JSON.parse(templates);
+    if (!resources.combine) {
+      data = await (await fetch(resources.componentsPath)).json();
+    }
     componentsMeta.list = data;
     componentsMeta.router.setRoutes(data._routes);
     componentsMeta.config = data._config;
@@ -3592,6 +3654,7 @@
       componentsMeta.booleanAttributes[booleanArray[i]] = true;
     }
     setUp();
+    ViewiApp.register = { ...components, ...register, ...functions };
     watchLinks();
     handleUrl(location.href);
   })();

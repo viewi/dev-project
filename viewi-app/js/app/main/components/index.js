@@ -86,3 +86,5 @@ export const components = {
     ViewiAssets,
     ConfigService,
 };
+
+export const templates = "{}";

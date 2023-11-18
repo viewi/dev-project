@@ -27,12 +27,13 @@
 
   // app/main/resources/index.js
   var resources = {
-    componentsPath: "/assets/components.json",
+    componentsPath: "/assets/viewi.demo.json",
     publicPath: "/assets/",
-    name: "default",
+    name: "demo",
     minify: false,
+    combine: false,
     appendVersion: false,
-    build: "Lhr7253H",
+    build: "VVI5i4Dy",
     version: "2.0.0"
   };
 
@@ -1445,6 +1446,7 @@
     ViewiAssets,
     ConfigService
   };
+  var templates = "{}";
 
   // app/main/functions/index.js
   var functions = {
@@ -3493,7 +3495,8 @@
     }
     const info = componentsMeta.list[name];
     if (info.lazy && !(info.lazy in lazyRecords)) {
-      const scriptUrl = resources.publicPath + "viewi." + info.lazy + (resources.minify ? ".min" : "") + ".js" + (resources.appendVersion ? "?" + resources.build : "");
+      const baseName = "viewi" + (resources.name === "default" ? "" : "." + resources.name);
+      const scriptUrl = resources.publicPath + baseName + "." + info.lazy + (resources.minify ? ".min" : "") + ".js" + (resources.appendVersion ? "?" + resources.build : "");
       injectScript(scriptUrl);
       delay.postpone(info.lazy, function() {
         lazyRecords[info.lazy] = true;
@@ -3639,7 +3642,10 @@
   window.ViewiApp = window.ViewiApp || {};
   window.ViewiApp[resources.name] = ViewiApp;
   (async () => {
-    const data = await (await fetch(resources.componentsPath)).json();
+    let data = JSON.parse(templates);
+    if (!resources.combine) {
+      data = await (await fetch(resources.componentsPath)).json();
+    }
     componentsMeta.list = data;
     componentsMeta.router.setRoutes(data._routes);
     componentsMeta.config = data._config;
