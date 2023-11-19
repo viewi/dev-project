@@ -5,6 +5,6 @@ export const resources = {
     minify: false,
     combine: false,
     appendVersion: false,
-    build: 'XR2Qlca1',
+    build: 'DS4aZuGz',
     version: '2.0.0',
 };

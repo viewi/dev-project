@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "XR2Qlca1",
+    build: "DS4aZuGz",
     version: "2.0.0"
   };
 
@@ -2681,7 +2681,7 @@
       } else if (options.inputType === "radio") {
         const inputValue = event.target.value;
         options.setter(instance, inputValue);
-      } else if (options.isMultiple) {
+      } else if (options.isMultiple || event.target.multiple) {
         const inputOptions = event.target.options;
         const newValue = [];
         for (let i = 0; i < inputOptions.length; i++) {
@@ -2730,7 +2730,7 @@
         target.removeAttribute("checked");
         target.checked = false;
       }
-    } else if (options.isMultiple) {
+    } else if (options.isMultiple || target.multiple) {
       const inputOptions = target.options;
       const currentValue = options.getter(instance);
       for (let i = 0; i < inputOptions.length; i++) {
