@@ -1,5 +1,5 @@
-import { CustomJsPage } from "../app/main/components/CustomJsPage";
 import { marked } from 'marked';
+import { CustomJsPage } from '../../app/CustomJsPage/components/CustomJsPage';
 
 CustomJsPage.prototype.getMarkedHtml = function (this: CustomJsPage) {
     return marked(this.markText);

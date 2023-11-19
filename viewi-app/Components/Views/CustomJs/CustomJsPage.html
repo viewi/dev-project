@@ -1,5 +1,19 @@
 <Layout title="$title">
     <h1>$title</h1>
+    <p>
+        Usin JS library marked to render markdown on client-side.
+    </p>
+    <p>
+        File: server\viewi-app\js\modules\CustomJsPage\index.ts
+    </p>
+    <pre>import \{ marked } from 'marked';
+import \{ CustomJsPage } from '../../app/CustomJsPage/components/CustomJsPage';
+
+CustomJsPage.prototype.getMarkedHtml = function (this: CustomJsPage) \{
+    return marked(this.markText);
+};
+
+export const modules = \{ CustomJsPage };</pre>
     <h3>Input</h3>
     <label for="markdown-text">
         Enter some markdown

@@ -1,3 +1,4 @@
 export const lazyGroups = {
-    LazyPostPage: './app/LazyPostPage/components/index.js'
+    CustomJsPage: './app/CustomJsPage/components/index.js',
+    LazyPostPage: './app/LazyPostPage/components/index.js',
 };
