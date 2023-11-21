@@ -7,7 +7,7 @@ import { MermberGuardNoAccess } from "./MermberGuardNoAccess";
 import { CounterReducer } from "./CounterReducer";
 import { TodoReducer } from "./TodoReducer";
 import { DemoContainer } from "./DemoContainer";
-import { MenuBar } from "./MenuBar";
+import { MenuBar, MenuBar_x } from "./MenuBar";
 import { ViewiIcon } from "./ViewiIcon";
 import { Counter, Counter_x } from "./Counter";
 import { HomePage, HomePage_x } from "./HomePage";
@@ -33,6 +33,7 @@ import { TodoApp, TodoApp_x } from "./TodoApp";
 import { TodoList, TodoList_x } from "./TodoList";
 import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
 import { ConfigService } from "./ConfigService";
+import { ClientRoute } from "./ClientRoute";
 
 export const components = {
     PostModel,
@@ -44,6 +45,7 @@ export const components = {
     CounterReducer,
     TodoReducer,
     DemoContainer,
+    MenuBar_x,
     MenuBar,
     ViewiIcon,
     Counter_x,
@@ -85,6 +87,7 @@ export const components = {
     ViewiAssets_x,
     ViewiAssets,
     ConfigService,
+    ClientRoute,
 };
 
 export const templates = "{}";

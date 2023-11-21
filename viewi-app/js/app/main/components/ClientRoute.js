@@ -2,7 +2,7 @@ import { register } from "../../../viewi/core/di/register";
 
 var Platform = register.Platform;
 
-class ConfigService {
+class ClientRoute {
     config = null;
     platform = null;
 
@@ -12,15 +12,20 @@ class ConfigService {
         $this.config = platform.getConfig();
     }
 
-    getAll() {
+    navigateBack() {
         var $this = this;
-        return $this.config;
+        $this.platform.navigateBack();
     }
 
-    get(name) {
+    navigate(url) {
         var $this = this;
-        return $this.config[name] ?? null;
+        $this.platform.redirect(url);
+    }
+
+    getUrl() {
+        var $this = this;
+        return $this.platform.getCurrentUrl();
     }
 }
 
-export { ConfigService }
+export { ClientRoute }

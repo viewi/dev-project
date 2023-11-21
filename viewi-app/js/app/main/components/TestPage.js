@@ -4,25 +4,25 @@ import { register } from "../../../viewi/core/di/register";
 import { Layout } from "./Layout";
 import { TestComponent } from "./TestComponent";
 
-var Process = register.Process;
+var Platform = register.Platform;
 
 class TestPage extends BaseComponent {
     _name = 'TestPage';
     baseUrl = "";
-    process = null;
+    platform = null;
     config = null;
 
-    constructor(process, config) {
+    constructor(platform, config) {
         super();
         var $this = this;
-        $this.process = process;
+        $this.platform = platform;
         $this.config = config;
         $this.baseUrl = config.get("baseUrl");
     }
 
     getEnvironment() {
         var $this = this;
-        return $this.process.browser ? "Browser" : "Server";
+        return $this.platform.browser ? "Browser" : "Server";
     }
 }
 

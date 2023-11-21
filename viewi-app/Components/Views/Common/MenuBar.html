@@ -38,5 +38,12 @@
                 <a href="/not-found-page" class="mui--text-light">Not Found Page</a>
             </li>
         </ul>
+        <div>
+            <button class="mui-btn mui-btn--accent" (click)="goHome">Home page</button>
+            <button class="mui-btn mui-btn--accent" (click)="back">Back</button>
+            <p class="mui--bg-primary-light">
+                Url: {getCurrentUrl()}
+            </p>
+        </div>
     </div>
 </div>
