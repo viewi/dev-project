@@ -23,6 +23,11 @@ class MenuBar extends BaseComponent
 
     public function getCurrentUrl()
     {
-        return $this->route->getUrl();
+        return $this->route->getUrlPath();
+    }
+
+    public function getQueryParams()
+    {
+        return $this->route->getQueryParams();
     }
 }

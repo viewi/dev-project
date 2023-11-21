@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "TyMYhNrb",
+    build: "ZmsP4wTn",
     version: "2.0.0"
   };
 
@@ -111,6 +111,14 @@
       var $this = this;
       return $this.platform.getCurrentUrl();
     }
+    getUrlPath() {
+      var $this = this;
+      return $this.platform.getCurrentUrlPath();
+    }
+    getQueryParams() {
+      var $this = this;
+      return $this.platform.getQueryParams();
+    }
   };
 
   // app/main/components/MermberGuardNoAccess.js
@@ -177,6 +185,117 @@
     _name = "DemoContainer";
   };
 
+  // app/main/functions/json_encode.js
+  function json_encode(mixedVal) {
+    const $global = typeof window !== "undefined" ? window : global;
+    $global.$locutus = $global.$locutus || {};
+    const $locutus = $global.$locutus;
+    $locutus.php = $locutus.php || {};
+    const json = $global.JSON;
+    let retVal;
+    try {
+      if (typeof json === "object" && typeof json.stringify === "function") {
+        retVal = json.stringify(mixedVal);
+        if (retVal === void 0) {
+          throw new SyntaxError("json_encode");
+        }
+        return retVal;
+      }
+      const value = mixedVal;
+      const quote = function(string) {
+        const escapeChars = [
+          "\0-",
+          "\x7F-\x9F",
+          "\xAD",
+          "\u0600-\u0604",
+          "\u070F",
+          "\u17B4",
+          "\u17B5",
+          "\u200C-\u200F",
+          "\u2028-\u202F",
+          "\u2060-\u206F",
+          "\uFEFF",
+          "\uFFF0-\uFFFF"
+        ].join("");
+        const escapable = new RegExp('[\\"' + escapeChars + "]", "g");
+        const meta = {
+          // table of character substitutions
+          "\b": "\\b",
+          "	": "\\t",
+          "\n": "\\n",
+          "\f": "\\f",
+          "\r": "\\r",
+          '"': '\\"',
+          "\\": "\\\\"
+        };
+        escapable.lastIndex = 0;
+        return escapable.test(string) ? '"' + string.replace(escapable, function(a) {
+          const c = meta[a];
+          return typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+        }) + '"' : '"' + string + '"';
+      };
+      var _str = function(key, holder) {
+        let gap = "";
+        const indent = "    ";
+        let i = 0;
+        let k = "";
+        let v = "";
+        let length = 0;
+        const mind = gap;
+        let partial = [];
+        let value2 = holder[key];
+        if (value2 && typeof value2 === "object" && typeof value2.toJSON === "function") {
+          value2 = value2.toJSON(key);
+        }
+        switch (typeof value2) {
+          case "string":
+            return quote(value2);
+          case "number":
+            return isFinite(value2) ? String(value2) : "null";
+          case "boolean":
+            return String(value2);
+          case "object":
+            if (!value2) {
+              return "null";
+            }
+            gap += indent;
+            partial = [];
+            if (Object.prototype.toString.apply(value2) === "[object Array]") {
+              length = value2.length;
+              for (i = 0; i < length; i += 1) {
+                partial[i] = _str(i, value2) || "null";
+              }
+              v = partial.length === 0 ? "[]" : gap ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : "[" + partial.join(",") + "]";
+              return v;
+            }
+            for (k in value2) {
+              if (Object.hasOwnProperty.call(value2, k)) {
+                v = _str(k, value2);
+                if (v) {
+                  partial.push(quote(k) + (gap ? ": " : ":") + v);
+                }
+              }
+            }
+            v = partial.length === 0 ? "{}" : gap ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : "{" + partial.join(",") + "}";
+            return v;
+          case "undefined":
+          case "function":
+          default:
+            throw new SyntaxError("json_encode");
+        }
+      };
+      return _str("", {
+        "": value
+      });
+    } catch (err) {
+      if (!(err instanceof SyntaxError)) {
+        throw new Error("Unexpected error type in json_encode()");
+      }
+      $locutus.php.last_error_json = 4;
+      return null;
+    }
+  }
+
   // app/main/components/ViewiIcon.js
   var ViewiIcon = class extends BaseComponent {
     _name = "ViewiIcon";
@@ -201,7 +320,11 @@
     }
     getCurrentUrl() {
       var $this = this;
-      return $this.route.getUrl();
+      return $this.route.getUrlPath();
+    }
+    getQueryParams() {
+      var $this = this;
+      return $this.route.getQueryParams();
     }
   };
   var MenuBar_x = [
@@ -217,6 +340,9 @@
     },
     function(_component) {
       return "\n                Url: " + (_component.getCurrentUrl() ?? "") + "\n            ";
+    },
+    function(_component) {
+      return "\n                Url: " + (json_encode(_component.getQueryParams()) ?? "") + "\n            ";
     }
   ];
 
@@ -510,117 +636,6 @@
       return $this.config[name] ?? null;
     }
   };
-
-  // app/main/functions/json_encode.js
-  function json_encode(mixedVal) {
-    const $global = typeof window !== "undefined" ? window : global;
-    $global.$locutus = $global.$locutus || {};
-    const $locutus = $global.$locutus;
-    $locutus.php = $locutus.php || {};
-    const json = $global.JSON;
-    let retVal;
-    try {
-      if (typeof json === "object" && typeof json.stringify === "function") {
-        retVal = json.stringify(mixedVal);
-        if (retVal === void 0) {
-          throw new SyntaxError("json_encode");
-        }
-        return retVal;
-      }
-      const value = mixedVal;
-      const quote = function(string) {
-        const escapeChars = [
-          "\0-",
-          "\x7F-\x9F",
-          "\xAD",
-          "\u0600-\u0604",
-          "\u070F",
-          "\u17B4",
-          "\u17B5",
-          "\u200C-\u200F",
-          "\u2028-\u202F",
-          "\u2060-\u206F",
-          "\uFEFF",
-          "\uFFF0-\uFFFF"
-        ].join("");
-        const escapable = new RegExp('[\\"' + escapeChars + "]", "g");
-        const meta = {
-          // table of character substitutions
-          "\b": "\\b",
-          "	": "\\t",
-          "\n": "\\n",
-          "\f": "\\f",
-          "\r": "\\r",
-          '"': '\\"',
-          "\\": "\\\\"
-        };
-        escapable.lastIndex = 0;
-        return escapable.test(string) ? '"' + string.replace(escapable, function(a) {
-          const c = meta[a];
-          return typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
-        }) + '"' : '"' + string + '"';
-      };
-      var _str = function(key, holder) {
-        let gap = "";
-        const indent = "    ";
-        let i = 0;
-        let k = "";
-        let v = "";
-        let length = 0;
-        const mind = gap;
-        let partial = [];
-        let value2 = holder[key];
-        if (value2 && typeof value2 === "object" && typeof value2.toJSON === "function") {
-          value2 = value2.toJSON(key);
-        }
-        switch (typeof value2) {
-          case "string":
-            return quote(value2);
-          case "number":
-            return isFinite(value2) ? String(value2) : "null";
-          case "boolean":
-            return String(value2);
-          case "object":
-            if (!value2) {
-              return "null";
-            }
-            gap += indent;
-            partial = [];
-            if (Object.prototype.toString.apply(value2) === "[object Array]") {
-              length = value2.length;
-              for (i = 0; i < length; i += 1) {
-                partial[i] = _str(i, value2) || "null";
-              }
-              v = partial.length === 0 ? "[]" : gap ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : "[" + partial.join(",") + "]";
-              return v;
-            }
-            for (k in value2) {
-              if (Object.hasOwnProperty.call(value2, k)) {
-                v = _str(k, value2);
-                if (v) {
-                  partial.push(quote(k) + (gap ? ": " : ":") + v);
-                }
-              }
-            }
-            v = partial.length === 0 ? "{}" : gap ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : "{" + partial.join(",") + "}";
-            return v;
-          case "undefined":
-          case "function":
-          default:
-            throw new SyntaxError("json_encode");
-        }
-      };
-      return _str("", {
-        "": value
-      });
-    } catch (err) {
-      if (!(err instanceof SyntaxError)) {
-        throw new Error("Unexpected error type in json_encode()");
-      }
-      $locutus.php.last_error_json = 4;
-      return null;
-    }
-  }
 
   // app/main/functions/count.js
   function count(mixedVar, mode) {
@@ -1515,9 +1530,9 @@
 
   // app/main/functions/index.js
   var functions = {
+    json_encode,
     strlen,
-    count,
-    json_encode
+    count
   };
 
   // viewi/core/router/routeItem.ts
@@ -3340,6 +3355,12 @@
     }
     getCurrentUrl() {
       return location.pathname + location.search;
+    }
+    getCurrentUrlPath() {
+      return location.pathname;
+    }
+    getQueryParams() {
+      return Object.fromEntries(new URLSearchParams(location.search));
     }
   };
 

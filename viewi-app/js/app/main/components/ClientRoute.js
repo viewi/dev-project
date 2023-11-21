@@ -26,6 +26,16 @@ class ClientRoute {
         var $this = this;
         return $this.platform.getCurrentUrl();
     }
+
+    getUrlPath() {
+        var $this = this;
+        return $this.platform.getCurrentUrlPath();
+    }
+
+    getQueryParams() {
+        var $this = this;
+        return $this.platform.getQueryParams();
+    }
 }
 
 export { ClientRoute }
