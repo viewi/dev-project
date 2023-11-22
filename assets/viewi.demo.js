@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "ZmsP4wTn",
+    build: "KqkDC1S0",
     version: "2.0.0"
   };
 
@@ -2508,6 +2508,48 @@
   // viewi/core/helpers/svgNameSpace.ts
   var svgNameSpace = "http://www.w3.org/2000/svg";
 
+  // viewi/core/hydrate/hydrateRaw.ts
+  function hydrateRaw(vdom, anchor, target) {
+    if (vdom.childNodes.length > 0) {
+      const invalid = [];
+      const rawNodes = Array.prototype.slice.call(vdom.childNodes);
+      for (let rawNodeI = 0; rawNodeI < rawNodes.length; rawNodeI++) {
+        const rawNode = rawNodes[rawNodeI];
+        const rawNodeType = rawNode.nodeType;
+        if (rawNodeType === 3) {
+          const currentTargetNode = target.childNodes[anchor.current];
+          if (currentTargetNode && currentTargetNode.nodeType === rawNodeType) {
+            currentTargetNode.nodeValue = rawNode.nodeValue;
+          } else {
+            anchor.added++;
+            target.childNodes.length > anchor.current && invalid.push(anchor.current);
+            target.childNodes.length > anchor.current + 1 ? target.insertBefore(rawNode, target.childNodes[anchor.current + 1]) : target.appendChild(rawNode);
+            anchor.current++;
+          }
+        } else {
+          const currentTargetNode = target.childNodes[anchor.current];
+          if (!currentTargetNode || currentTargetNode.nodeType !== rawNodeType || rawNodeType === 1 && currentTargetNode.nodeName !== rawNode.nodeName) {
+            anchor.added++;
+            target.childNodes.length > anchor.current && invalid.push(anchor.current);
+            target.childNodes.length > anchor.current + 1 ? target.insertBefore(rawNode, target.childNodes[anchor.current + 1]) : target.appendChild(rawNode);
+            anchor.current++;
+          } else if (rawNodeType === 1) {
+            if (currentTargetNode.nodeName !== rawNode.nodeName || currentTargetNode.outerHTML !== rawNode.outerHTML) {
+              const keepKey = currentTargetNode.getAttribute("data-keep");
+              if (!keepKey || keepKey !== rawNode.getAttribute("data-keep")) {
+                currentTargetNode.outerHTML = rawNode.outerHTML;
+              }
+            }
+          }
+        }
+        anchor.current++;
+      }
+      if (invalid.length > 0) {
+        anchor.invalid = anchor.invalid.concat(invalid);
+      }
+    }
+  }
+
   // viewi/core/render/render.ts
   function render(target, instance, nodes, scope, directives, hydrate = true, insert = false) {
     let ifConditions = null;
@@ -2858,35 +2900,8 @@
             const anchor = hydrate ? getAnchor(target) : void 0;
             const anchorBegin = createAnchorNode(target, insert, anchor);
             if (hydrate) {
-              if (vdom.childNodes.length > 0) {
-                const rawNodes = Array.prototype.slice.call(vdom.childNodes);
-                for (let rawNodeI = 0; rawNodeI < rawNodes.length; rawNodeI++) {
-                  const rawNode = rawNodes[rawNodeI];
-                  const rawNodeType = rawNode.nodeType;
-                  if (rawNodeType === 3) {
-                    anchor.current++;
-                    const currentTargetNode = target.childNodes[anchor.current];
-                    if (currentTargetNode && currentTargetNode.nodeType === rawNodeType) {
-                      currentTargetNode.nodeValue = rawNode.nodeValue;
-                    } else {
-                      insert ? target.parentElement.insertBefore(rawNode, target) : target.appendChild(rawNode);
-                    }
-                  } else {
-                    anchor.current++;
-                    const currentTargetNode = target.childNodes[anchor.current];
-                    if (!currentTargetNode || currentTargetNode.nodeType !== rawNodeType || rawNodeType === 1 && currentTargetNode.nodeName !== rawNode.nodeName) {
-                      insert ? target.parentElement.insertBefore(rawNode, target) : target.appendChild(rawNode);
-                    } else if (rawNodeType === 1) {
-                      if (currentTargetNode.nodeName !== rawNode.nodeName || currentTargetNode.outerHTML !== rawNode.outerHTML) {
-                        const keepKey = currentTargetNode.getAttribute("data-keep");
-                        if (!keepKey || keepKey !== rawNode.getAttribute("data-keep")) {
-                          currentTargetNode.outerHTML = rawNode.outerHTML;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+              anchor.current++;
+              hydrateRaw(vdom, anchor, target);
             } else {
               if (vdom.childNodes.length > 0) {
                 const rawNodes = Array.prototype.slice.call(vdom.childNodes);

@@ -10,7 +10,7 @@ class CustomJsPage extends BaseComponent {
 
     getMarkedHtml(text) {
         var $this = this;
-        // nothing on server-side
+        return "";
     }
 }
 

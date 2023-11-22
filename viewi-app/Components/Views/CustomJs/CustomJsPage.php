@@ -13,6 +13,6 @@ class CustomJsPage extends BaseComponent
 
     public function getMarkedHtml($text)
     {
-        // nothing on server-side
+        return "";
     }
 }
