@@ -42,8 +42,16 @@
 </head>
 
 <body>
+    <Portal name="header" />
     <div id="sidebar">
         <MenuBar />
+        <Portal to="body">
+            <div class="footer mui--text-center">
+                Footer from portal
+                <h4>Page title</h4>
+                <div>$title</div> 
+            </div>
+        </Portal>
     </div>
     <DemoContainer>
         <DemoContainer>
@@ -52,6 +60,7 @@
             </div>
         </DemoContainer>
     </DemoContainer>
+    <Portal name="body" />
     <ViewiAssets />
 </body>
 

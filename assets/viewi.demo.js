@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "KqkDC1S0",
+    build: "IR32ViPG",
     version: "2.0.0"
   };
 
@@ -423,6 +423,7 @@
   ];
 
   // app/main/components/Layout.js
+  var Portal = register.Portal;
   var Layout = class extends BaseComponent {
     _name = "Layout";
     title = "Viewi";
@@ -430,6 +431,9 @@
   var Layout_x = [
     function(_component) {
       return "\n        " + (_component.title ?? "") + " | Viewi\n    ";
+    },
+    function(_component) {
+      return _component.title;
     }
   ];
 
@@ -1471,6 +1475,40 @@
     _name = "TodoAppPage";
   };
 
+  // app/main/components/PortalPage.js
+  var Portal2 = register.Portal;
+  var PortalPage = class extends BaseComponent {
+    _name = "PortalPage";
+    title = "Portal demo";
+  };
+  var PortalPage_x = [
+    function(_component) {
+      return _component.title;
+    },
+    function(_component) {
+      return _component.title;
+    },
+    function(_component) {
+      return [function(_component2) {
+        return _component2.title;
+      }, function(_component2, value) {
+        _component2.title = value;
+      }];
+    },
+    function(_component) {
+      return '\n            This should appear at the end of the body (portal with name "body").\n            Title of the page: ' + (_component.title ?? "") + "\n        ";
+    },
+    function(_component) {
+      return '\n            This should appear at the begining of the body (portal with name "header").\n            Title of the page: ' + (_component.title ?? "") + "\n        ";
+    },
+    function(_component) {
+      return "\n            Body: " + (_component.title ?? "") + "\n        ";
+    },
+    function(_component) {
+      return "\n            Header: " + (_component.title ?? "") + "\n        ";
+    }
+  ];
+
   // app/main/components/index.js
   var components = {
     PostModel,
@@ -1505,6 +1543,8 @@
     TestPage_x,
     TestPage,
     TodoAppPage,
+    PortalPage_x,
+    PortalPage,
     StatefulCounter_x,
     StatefulCounter,
     StatefulTodoApp_x,
@@ -1714,6 +1754,7 @@
   var factoryContainer = {};
   function factory(name, implementation, factory2) {
     register[name] = implementation;
+    components[name] = implementation;
     factoryContainer[name] = factory2;
   }
 
@@ -3239,6 +3280,9 @@
       }
       return scope;
     }
+    if (info.renderer) {
+      instance.render(target, name, scope, props, hydrate, insert, params);
+    }
     if (target && root) {
       if (!root.unpacked) {
         unpack(root);
@@ -3696,11 +3740,121 @@
     }
   };
 
+  // viewi/core/portal/portals.ts
+  var portals = {};
+
+  // viewi/core/portal/renderPortal.ts
+  function renderPortal(portal, scope, hydrate = false, insert = false) {
+    const portalEndMark = document.getElementById("portal_" + portal.to + "_end");
+    if (portalEndMark) {
+      const portalAnchorCurrent = portals[portal.to].current;
+      const renderTarget = insert ? portalEndMark : portalEndMark.parentElement;
+      const anchor = hydrate ? getAnchor(renderTarget) : void 0;
+      const anchorCurrent = hydrate ? anchor.current : 0;
+      const portalPositionIndexBefore = Array.prototype.indexOf.call(renderTarget.childNodes, portalEndMark);
+      hydrate && (anchor.current = portalAnchorCurrent);
+      let slotName = "default";
+      const anchorSlotBegin = createAnchorNode(renderTarget, insert, anchor);
+      if (slotName in scope.slots) {
+        const slot = scope.slots[slotName];
+        if (!slot.node.unpacked) {
+          unpack(slot.node);
+          slot.node.unpacked = true;
+        }
+        render(renderTarget, slot.scope.instance, slot.node.children, slot.scope, void 0, hydrate, insert);
+      }
+      const anchorSlotNode = createAnchorNode(renderTarget, insert, anchor, anchorSlotBegin._anchor);
+      if (scope.instance._name in globalScope.iteration) {
+        globalScope.iteration[scope.instance._name].slots[slotName] = anchorSlotNode;
+      }
+      portal.$.anchorNode = anchorSlotNode;
+      if (hydrate) {
+        portals[portal.to].current = anchor.current;
+        const portalPositionIndexAfter = Array.prototype.indexOf.call(renderTarget.childNodes, portalEndMark);
+        anchor.current = anchorCurrent + portalPositionIndexAfter - portalPositionIndexBefore;
+      }
+    }
+  }
+
+  // viewi/core/portal/portal.ts
+  var Portal3 = class extends BaseComponent {
+    to;
+    name;
+    _name = "Portal";
+    anchorNode;
+    destroy() {
+      if (this.to && this.anchorNode && this.anchorNode.previousSibling) {
+        while (this.anchorNode.previousSibling._anchor !== this.anchorNode._anchor) {
+          this.anchorNode.previousSibling.remove();
+        }
+        this.anchorNode.previousSibling.remove();
+        this.anchorNode.remove();
+      }
+    }
+    render(target, name, scope, props, hydrate = false, insert = false, params = {}) {
+      if (this.name) {
+        const idEnd = "portal_" + this.name + "_end";
+        if (hydrate) {
+          const portalEndMark = document.getElementById(idEnd);
+          if (portalEndMark) {
+            const portalPositionIndex = Array.prototype.indexOf.call(target.childNodes, portalEndMark);
+            if (portalPositionIndex > 0) {
+              const anchor = getAnchor(target);
+              if (!(this.name in portals)) {
+                portals[this.name] = {};
+              }
+              portals[this.name].current = anchor.current + 1;
+              anchor.current = portalPositionIndex;
+              if (portals[this.name].queue) {
+                const queue = portals[this.name].queue;
+                for (let i = 0; i < queue.length; i++) {
+                  queue[i][0].apply(null, queue[i][1]);
+                }
+                delete portals[this.name].queue;
+              }
+            }
+          }
+        } else {
+          const idBegin = "portal_" + this.name;
+          const portalBeginElement = document.createElement("i");
+          const portalEndElement = document.createElement("i");
+          portalBeginElement.setAttribute("id", idBegin);
+          portalEndElement.setAttribute("id", idEnd);
+          const style = "display: none !important;";
+          portalBeginElement.setAttribute("style", style);
+          portalEndElement.setAttribute("style", style);
+          insert ? target.parentElement.insertBefore(portalBeginElement, target) : target.appendChild(portalBeginElement);
+          insert ? target.parentElement.insertBefore(portalEndElement, target) : target.appendChild(portalEndElement);
+        }
+      } else if (this.to) {
+        if (hydrate) {
+          if (this.to in portals && portals[this.to].current) {
+            renderPortal(this, scope, hydrate, insert);
+          } else {
+            const delayedRender = [renderPortal, [this, scope, hydrate, insert]];
+            if (this.to in portals) {
+              portals[this.to].queue.push(delayedRender);
+            } else {
+              portals[this.to] = {
+                queue: [delayedRender]
+              };
+            }
+          }
+        } else {
+          renderPortal(this, scope, false, true);
+        }
+      } else {
+        throw new Error("Portal component should have either 'name' or 'to' attribute.");
+      }
+    }
+  };
+
   // viewi/core/di/setUp.ts
   function setUp() {
     register["BaseComponent"] = BaseComponent;
     factory("HttpClient", HttpClient3, () => new HttpClient3());
     factory("Platform", Platform4, () => new Platform4());
+    factory("Portal", Portal3, () => new Portal3());
   }
 
   // viewi/core/router/watchLinks.ts

@@ -1,0 +1,35 @@
+<Layout title="$title">
+    <h1>$title</h1>
+    <p>
+        Using portals
+    </p>
+    <div>
+        <input type="text" model="$title" />
+    </div>
+    <Portal to="body">
+        <div
+            style="position: absolute; bottom: 20px; right: 20px; background-color: #fdfdfd; border: 1px solid #ccc; padding: 20px;">
+            This should appear at the end of the body (portal with name "body").
+            Title of the page: $title
+        </div>
+    </Portal>
+    <Portal to="header">
+        <div
+            style="position: absolute; top: 20px; right: 20px; background-color: #fdfdfd; border: 1px solid #ccc; padding: 20px;">
+            This should appear at the begining of the body (portal with name "header").
+            Title of the page: $title
+        </div>
+    </Portal>
+    <Portal to="body">
+        <div
+            style="position: absolute; bottom: 100px; right: 20px; background-color: #fdfdfd; border: 1px solid #ccc; padding: 20px;">
+            Body: $title
+        </div>
+    </Portal>
+    <Portal to="header">
+        <div
+            style="position: absolute; top: 100px; right: 20px; background-color: #fdfdfd; border: 1px solid #ccc; padding: 20px;">
+            Header: $title
+        </div>
+    </Portal>
+</Layout>

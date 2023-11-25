@@ -22,6 +22,7 @@ import { PostPage, PostPage_x } from "./PostPage";
 import { TestLayoutPage } from "./TestLayoutPage";
 import { TestPage, TestPage_x } from "./TestPage";
 import { TodoAppPage } from "./TodoAppPage";
+import { PortalPage, PortalPage_x } from "./PortalPage";
 import { StatefulCounter, StatefulCounter_x } from "./StatefulCounter";
 import { StatefulTodoApp, StatefulTodoApp_x } from "./StatefulTodoApp";
 import { ItemComponent } from "./ItemComponent";
@@ -68,6 +69,8 @@ export const components = {
     TestPage_x,
     TestPage,
     TodoAppPage,
+    PortalPage_x,
+    PortalPage,
     StatefulCounter_x,
     StatefulCounter,
     StatefulTodoApp_x,
