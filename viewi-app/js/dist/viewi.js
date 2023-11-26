@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "IR32ViPG",
+    build: "H3roA1d1",
     version: "2.0.0"
   };
 
@@ -437,6 +437,63 @@
     }
   ];
 
+  // app/main/components/ExternalHttpPage.js
+  var HttpClient2 = register.HttpClient;
+  var ExternalHttpPage = class extends BaseComponent {
+    _name = "ExternalHttpPage";
+    title = "External Http support";
+    error = "";
+    message = "";
+    users = null;
+    http = null;
+    constructor(http) {
+      super();
+      var $this = this;
+      $this.http = http;
+    }
+    init() {
+      var $this = this;
+      $this.message = "Loading..";
+      $this.http.get("https://apingweb.com/api/users").then(function(response) {
+        $this.message = "Users has been read successfully";
+        $this.users = response["data"];
+      }, function() {
+        $this.error = "Server error";
+      }, function() {
+        $this.message = "";
+      });
+    }
+  };
+  var ExternalHttpPage_x = [
+    function(_component) {
+      return "Message: " + (_component.message ?? "");
+    },
+    function(_component) {
+      return "Error: " + (_component.error ?? "");
+    },
+    function(_component) {
+      return _component.users;
+    },
+    function(_component) {
+      return _component.users;
+    },
+    function(_component, _key1, user) {
+      return user["user_id"];
+    },
+    function(_component, _key1, user) {
+      return user["name"];
+    },
+    function(_component, _key1, user) {
+      return user["email"];
+    },
+    function(_component, _key1, user) {
+      return user["age"];
+    },
+    function(_component, _key1, user) {
+      return user["date_created"];
+    }
+  ];
+
   // app/main/components/PanelLayout.js
   var PanelLayout = class extends BaseComponent {
     _name = "PanelLayout";
@@ -574,7 +631,7 @@
   };
 
   // app/main/components/PostPage.js
-  var HttpClient2 = register.HttpClient;
+  var HttpClient3 = register.HttpClient;
   var PostPage = class extends BaseComponent {
     _name = "PostPage";
     post = null;
@@ -1525,6 +1582,8 @@
     ViewiIcon,
     Counter_x,
     Counter,
+    ExternalHttpPage_x,
+    ExternalHttpPage,
     HomePage_x,
     HomePage,
     AreaLayout_x,
@@ -3666,7 +3725,7 @@
     };
     responseHandler.next(response);
   };
-  var HttpClient3 = class _HttpClient {
+  var HttpClient4 = class _HttpClient {
     interceptors = [];
     request(method, url, body, headers) {
       const $this = this;
@@ -3852,7 +3911,7 @@
   // viewi/core/di/setUp.ts
   function setUp() {
     register["BaseComponent"] = BaseComponent;
-    factory("HttpClient", HttpClient3, () => new HttpClient3());
+    factory("HttpClient", HttpClient4, () => new HttpClient4());
     factory("Platform", Platform4, () => new Platform4());
     factory("Portal", Portal3, () => new Portal3());
   }

@@ -1,0 +1,29 @@
+<Layout title="Users">
+    <h1>Users</h1>
+    <div class="mui-container-fluid">
+        <div>Message: $message</div>
+        <div>Error: $error</div>
+        <div if="$users">
+            <table class="mui-table mui-table--bordered">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr foreach="$users as $user">
+                        <td>{$user['user_id']}</td>
+                        <td>{$user['name']}</td>
+                        <td>{$user['email']}</td>
+                        <td>{$user['age']}</td>
+                        <td>{$user['date_created']}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</Layout>

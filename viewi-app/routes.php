@@ -1,6 +1,7 @@
 <?php
 
 use Components\Views\CustomJs\CustomJsPage;
+use Components\Views\ExternalHttp\ExternalHttpPage;
 use Components\Views\Home\HomePage;
 use Components\Views\NotFound\NotFoundPage;
 use Components\Views\Pages\CounterPage;
@@ -30,6 +31,7 @@ $router->get('/post/{id}', PostPage::class);
 $router->get('/lazy-post/{id}', LazyPostPage::class);
 $router->get('/member', MemberPage::class);
 $router->get('/member-no-access', MemberPageNoAccess::class);
+$router->get('/external-api', ExternalHttpPage::class);
 
 $router
     ->get('*', NotFoundPage::class)
