@@ -17,4 +17,6 @@ return (new AppConfig('demo'))
     ->putAssetsTo($publicPath)
     ->fetchAssetsFrom($assetsPath)
     // ->combine()
-    ->developmentMode(true);
+    ->developmentMode(true)
+    ->buildJsSourceCode()
+    ->watchWithNPM(true);

@@ -4,6 +4,11 @@
 // Run:
 // php -S localhost:8000 -t server/
 
+// npm watch
+// cd server/viewi-app/js/
+// npm run watch
+
+
 use Components\Models\PostModel;
 use Viewi\Components\Http\Message\Response;
 
