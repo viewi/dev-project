@@ -4,7 +4,8 @@
 // Run:
 // php -S localhost:8000 -t server/
 
-// npm watch
+// npm run --prefix server/viewi-app/js/ watch
+
 // cd server/viewi-app/js/
 // npm run watch
 

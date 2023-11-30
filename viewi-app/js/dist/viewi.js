@@ -27,13 +27,13 @@
 
   // app/main/resources/index.js
   var resources = {
-    componentsPath: "/assets/viewi.demo.json",
-    publicPath: "/assets/",
+    componentsPath: "/assets/viewi-demo/viewi.demo.json",
+    publicPath: "/assets/viewi-demo/",
     name: "demo",
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "C0EckWk4",
+    build: "EOxBTCg1",
     version: "2.0.0"
   };
 
@@ -407,6 +407,26 @@
     }
   ];
 
+  // app/main/components/ConfigService.js
+  var Platform2 = register.Platform;
+  var ConfigService = class {
+    config = null;
+    platform = null;
+    constructor(platform) {
+      var $this = this;
+      $this.platform = platform;
+      $this.config = platform.getConfig();
+    }
+    getAll() {
+      var $this = this;
+      return $this.config;
+    }
+    get(name) {
+      var $this = this;
+      return $this.config[name] ?? null;
+    }
+  };
+
   // app/main/components/ViewiAssets.js
   var ViewiAssets = class extends BaseComponent {
     _name = "ViewiAssets";
@@ -427,10 +447,19 @@
   var Layout = class extends BaseComponent {
     _name = "Layout";
     title = "Viewi";
+    assetsUrl = "/";
+    constructor(config) {
+      super();
+      var $this = this;
+      $this.assetsUrl = config.get("assetsUrl");
+    }
   };
   var Layout_x = [
     function(_component) {
       return "\n        " + (_component.title ?? "") + " | Viewi\n    ";
+    },
+    function(_component) {
+      return _component.assetsUrl;
     },
     function(_component) {
       return _component.title;
@@ -676,26 +705,6 @@
   // app/main/components/TestLayoutPage.js
   var TestLayoutPage = class extends BaseComponent {
     _name = "TestLayoutPage";
-  };
-
-  // app/main/components/ConfigService.js
-  var Platform2 = register.Platform;
-  var ConfigService = class {
-    config = null;
-    platform = null;
-    constructor(platform) {
-      var $this = this;
-      $this.platform = platform;
-      $this.config = platform.getConfig();
-    }
-    getAll() {
-      var $this = this;
-      return $this.config;
-    }
-    get(name) {
-      var $this = this;
-      return $this.config[name] ?? null;
-    }
   };
 
   // app/main/functions/count.js

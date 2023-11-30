@@ -1,10 +1,10 @@
 export const resources = {
-    componentsPath: '/assets/viewi.demo.json',
-    publicPath: '/assets/',
+    componentsPath: '/assets/viewi-demo/viewi.demo.json',
+    publicPath: '/assets/viewi-demo/',
     name: 'demo',
     minify: false,
     combine: false,
     appendVersion: false,
-    build: 'C0EckWk4',
+    build: 'EOxBTCg1',
     version: '2.0.0',
 };

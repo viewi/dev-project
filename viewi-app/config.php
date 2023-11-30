@@ -7,15 +7,17 @@ $viewiAppPath = __DIR__ . $d;
 $componentsPath =  $viewiAppPath . 'Components';
 $buildPath = $viewiAppPath . 'build';
 $jsPath = $viewiAppPath . 'js';
+$assetsSourcePath = $viewiAppPath . 'assets';
 $publicPath = __DIR__ . $d . '..' . $d . 'assets';
-$assetsPath = '/assets';
+$assetsPublicUrl = '/assets';
 
 return (new AppConfig('demo'))
     ->buildTo($buildPath)
     ->buildFrom($componentsPath)
     ->withJsEntry($jsPath)
     ->putAssetsTo($publicPath)
-    ->fetchAssetsFrom($assetsPath)
+    ->assetsPublicUrl($assetsPublicUrl)
+    ->withAssets($assetsSourcePath)
     // ->combine()
     ->developmentMode(true)
     ->buildJsSourceCode()
