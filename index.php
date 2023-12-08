@@ -1,5 +1,7 @@
 <?php
 
+// composer require viewi/viewi:v2.x-dev
+
 // local development server for testing
 // Run:
 // php -S localhost:8000 -t server/
@@ -9,6 +11,8 @@
 // cd server/viewi-app/js/
 // npm run watch
 
+// for stubs
+// // php -S localhost:8001 -t public/
 
 use Components\Models\PostModel;
 use Viewi\Components\Http\Message\Response;

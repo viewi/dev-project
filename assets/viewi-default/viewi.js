@@ -27,13 +27,13 @@
 
   // app/main/resources/index.js
   var resources = {
-    componentsPath: "/assets/viewi-demo/viewi.demo.json",
-    publicPath: "/assets/viewi-demo/",
-    name: "demo",
+    componentsPath: "/assets/viewi-default/viewi.json",
+    publicPath: "/assets/viewi-default/",
+    name: "default",
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "EoaVziEd",
+    build: "95LyAtbp",
     version: "2.0.0"
   };
 
@@ -425,103 +425,7 @@
       var $this = this;
       return $this.config[name] ?? null;
     }
-    isServer() {
-      var $this = this;
-      return $this.platform.server;
-    }
-    isBrowser() {
-      var $this = this;
-      return $this.platform.browser;
-    }
   };
-
-  // app/main/functions/implode.js
-  function implode(glue, pieces) {
-    let i = "";
-    let retVal = "";
-    let tGlue = "";
-    if (arguments.length === 1) {
-      pieces = glue;
-      glue = "";
-    }
-    if (typeof pieces === "object") {
-      if (Object.prototype.toString.call(pieces) === "[object Array]") {
-        return pieces.join(glue);
-      }
-      for (i in pieces) {
-        retVal += tGlue + pieces[i];
-        tGlue = glue;
-      }
-      return retVal;
-    }
-    return pieces;
-  }
-
-  // app/main/components/CssBundle.js
-  var HttpClient2 = register.HttpClient;
-  var CssBundle = class extends BaseComponent {
-    _name = "CssBundle";
-    config = null;
-    http = null;
-    constructor(config, http) {
-      super();
-      var $this = this;
-      config = typeof config !== "undefined" ? config : null;
-      http = typeof http !== "undefined" ? http : null;
-      $this.config = config;
-      $this.http = http;
-    }
-    links = [];
-    minify = false;
-    combine = false;
-    inline = false;
-    purge = false;
-    cssHtml = "<!--- CssBundle not initiated --->";
-    mounted() {
-      var $this = this;
-      var baseUrl = $this.config.get("assetsUrl");
-      if ($this.combine) {
-        var cssBundleList = $this.config.get("cssBundle");
-        var version = $this.version();
-        if (!(version in cssBundleList)) {
-          throw new Exception("Css bundle not found");
-        }
-        var cssFile = baseUrl + cssBundleList[version];
-        if ($this.inline) {
-          $this.cssHtml = '<style data-keep="' + version + '"> /** loading ' + cssFile + " **/ </style>";
-          $this.http.get(cssFile).then(function(css) {
-            $this.cssHtml = '<style data-keep="' + version + '">' + css + "</style>";
-          }, function() {
-            $this.cssHtml = '<style data-keep="' + version + '"> /** Error loading ' + cssFile + " **/ </style>";
-          });
-          return;
-        }
-        $this.cssHtml = '<link rel="stylesheet" href="' + cssFile + '">';
-      } else {
-        var cssHtml = "";
-        for (var _i0 in $this.links) {
-          var link = $this.links[_i0];
-          cssFile = baseUrl + link;
-          cssHtml += '<link rel="stylesheet" href="' + cssFile + '">';
-          $this.cssHtml = cssHtml;
-        }
-      }
-    }
-    version() {
-      var $this = this;
-      var key = implode("|", $this.links);
-      key += $this.minify ? "1" : "0";
-      key += $this.inline ? "1" : "0";
-      key += $this.purge ? "1" : "0";
-      key += $this.combine ? "1" : "0";
-      return key;
-    }
-  };
-  var CssBundle_x = [
-    function(_component) {
-      return _component.cssHtml;
-    }
-  ];
 
   // app/main/components/ViewiAssets.js
   var ViewiAssets = class extends BaseComponent {
@@ -555,7 +459,7 @@
       return "\n        " + (_component.title ?? "") + " | Viewi\n    ";
     },
     function(_component) {
-      return ["/mui.css", "/app.css"];
+      return _component.assetsUrl;
     },
     function(_component) {
       return _component.title;
@@ -563,7 +467,7 @@
   ];
 
   // app/main/components/ExternalHttpPage.js
-  var HttpClient3 = register.HttpClient;
+  var HttpClient2 = register.HttpClient;
   var ExternalHttpPage = class extends BaseComponent {
     _name = "ExternalHttpPage";
     title = "External Http support";
@@ -756,7 +660,7 @@
   };
 
   // app/main/components/PostPage.js
-  var HttpClient4 = register.HttpClient;
+  var HttpClient3 = register.HttpClient;
   var PostPage = class extends BaseComponent {
     _name = "PostPage";
     post = null;
@@ -1725,8 +1629,6 @@
     TodoApp,
     TodoList_x,
     TodoList,
-    CssBundle_x,
-    CssBundle,
     ViewiAssets_x,
     ViewiAssets,
     ConfigService,
@@ -1738,8 +1640,7 @@
   var functions = {
     json_encode,
     strlen,
-    count,
-    implode
+    count
   };
 
   // viewi/core/router/routeItem.ts
@@ -1928,13 +1829,7 @@
   // viewi/core/di/resolve.ts
   var singletonContainer = {};
   var nextInstanceId = 0;
-  function resolve(name, params = {}, canBeNull = false) {
-    if (!(name in componentsMeta.list)) {
-      if (canBeNull) {
-        return null;
-      }
-      throw new Error("Can't resolve " + name);
-    }
+  function resolve(name, params = {}) {
     const info = componentsMeta.list[name];
     let instance = null;
     let container = false;
@@ -1954,16 +1849,17 @@
       const constructArguments = [];
       for (let i in info.dependencies) {
         const dependency = info.dependencies[i];
-        const argCanBeNull = !!dependency.null;
         var argument = null;
         if (params && dependency.argName in params) {
           argument = params[dependency.argName];
         } else if (dependency.default) {
           argument = dependency.default;
+        } else if (dependency.null) {
+          argument = null;
         } else if (dependency.builtIn) {
           argument = dependency.name === "string" ? "" : 0;
         } else {
-          argument = resolve(dependency.name, {}, argCanBeNull);
+          argument = resolve(dependency.name);
         }
         constructArguments.push(argument);
       }
@@ -3403,9 +3299,6 @@
               instance._props[propName] = valueContent[propName];
             }
           } else {
-            if (attribute.children?.length === 1 && attribute.children[0].content === "false") {
-              valueContent = false;
-            }
             instance[attrName] = valueContent;
             instance._props[attrName] = valueContent;
           }
@@ -3417,9 +3310,6 @@
           }
         }
       }
-    }
-    if (info.hooks && info.hooks.mounted) {
-      instance.mounted();
     }
     if (name in globalScope.located) {
       globalScope.iteration[name] = { instance, scope, slots: {} };
@@ -3844,7 +3734,7 @@
     };
     responseHandler.next(response);
   };
-  var HttpClient5 = class _HttpClient {
+  var HttpClient4 = class _HttpClient {
     interceptors = [];
     request(method, url, body, headers) {
       const $this = this;
@@ -4030,7 +3920,7 @@
   // viewi/core/di/setUp.ts
   function setUp() {
     register["BaseComponent"] = BaseComponent;
-    factory("HttpClient", HttpClient5, () => new HttpClient5());
+    factory("HttpClient", HttpClient4, () => new HttpClient4());
     factory("Platform", Platform4, () => new Platform4());
     factory("Portal", Portal3, () => new Portal3());
   }

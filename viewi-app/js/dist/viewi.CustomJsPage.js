@@ -7,7 +7,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "EOxBTCg1",
+    build: "EoaVziEd",
     version: "2.0.0"
   };
 

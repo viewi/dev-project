@@ -8,7 +8,7 @@ $componentsPath =  $viewiAppPath . 'Components';
 $buildPath = $viewiAppPath . 'build';
 $jsPath = $viewiAppPath . 'js';
 $assetsSourcePath = $viewiAppPath . 'assets';
-$publicPath = __DIR__ . $d . '..' . $d . 'assets';
+$publicPath = __DIR__ . $d . '..';
 $assetsPublicUrl = '/assets';
 
 return (new AppConfig('demo'))
@@ -21,4 +21,4 @@ return (new AppConfig('demo'))
     // ->combine()
     ->developmentMode(true)
     ->buildJsSourceCode()
-    ->watchWithNPM(true);
+    ->watchWithNPM(false);

@@ -33,6 +33,7 @@ import { TestComponent, TestComponent_x } from "./TestComponent";
 import { TestInput, TestInput_x } from "./TestInput";
 import { TodoApp, TodoApp_x } from "./TodoApp";
 import { TodoList, TodoList_x } from "./TodoList";
+import { CssBundle, CssBundle_x } from "./CssBundle";
 import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
 import { ConfigService } from "./ConfigService";
 import { ClientRoute } from "./ClientRoute";
@@ -90,6 +91,8 @@ export const components = {
     TodoApp,
     TodoList_x,
     TodoList,
+    CssBundle_x,
+    CssBundle,
     ViewiAssets_x,
     ViewiAssets,
     ConfigService,

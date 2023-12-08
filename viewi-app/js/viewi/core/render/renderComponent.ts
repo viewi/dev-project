@@ -133,6 +133,9 @@ export function renderComponent(target: HtmlNodeType, name: string, props?: Prop
                         instance._props[propName] = valueContent[propName];
                     }
                 } else {
+                    if (attribute.children?.length === 1 && attribute.children[0].content === 'false') {
+                        valueContent = false;
+                    }
                     instance[attrName] = valueContent;
                     instance._props[attrName] = valueContent;
                 }
@@ -146,6 +149,9 @@ export function renderComponent(target: HtmlNodeType, name: string, props?: Prop
                 }
             }
         }
+    }
+    if (info.hooks && info.hooks.mounted) {
+        (instance as any).mounted();
     }
     // reuse && console.log(`Reusing component: ${name}`);
     if (name in globalScope.located) {

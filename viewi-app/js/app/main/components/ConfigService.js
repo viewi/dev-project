@@ -21,6 +21,16 @@ class ConfigService {
         var $this = this;
         return $this.config[name] ?? null;
     }
+
+    isServer() {
+        var $this = this;
+        return $this.platform.server;
+    }
+
+    isBrowser() {
+        var $this = this;
+        return $this.platform.browser;
+    }
 }
 
 export { ConfigService }

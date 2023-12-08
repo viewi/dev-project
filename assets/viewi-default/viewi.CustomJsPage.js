@@ -1,13 +1,13 @@
 (() => {
   // app/main/resources/index.js
   var resources = {
-    componentsPath: "/assets/viewi-demo/viewi.demo.json",
-    publicPath: "/assets/viewi-demo/",
-    name: "demo",
+    componentsPath: "/assets/viewi-default/viewi.json",
+    publicPath: "/assets/viewi-default/",
+    name: "default",
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "EoaVziEd",
+    build: "95LyAtbp",
     version: "2.0.0"
   };
 
@@ -2049,5 +2049,5 @@ ${content}</tr>
     CustomJsPage_t,
     CustomJsPage
   };
-  window.ViewiApp.demo.publish("CustomJsPage", components);
+  window.ViewiApp.default.publish("CustomJsPage", components);
 })();
