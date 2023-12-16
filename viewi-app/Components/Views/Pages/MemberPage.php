@@ -2,11 +2,11 @@
 
 namespace Components\Views\Pages;
 
-use Components\Services\Middleware\MermberGuard;
+use Components\Services\Middleware\MemberGuard;
 use Viewi\Components\Attributes\Middleware;
 use Viewi\Components\BaseComponent;
 
-#[Middleware([MermberGuard::class])]
+#[Middleware([MemberGuard::class])]
 class MemberPage extends BaseComponent
 {
 }

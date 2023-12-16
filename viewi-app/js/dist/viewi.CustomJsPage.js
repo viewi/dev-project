@@ -7,7 +7,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "EoaVziEd",
+    build: "jUUoYaL3",
     version: "2.0.0"
   };
 
