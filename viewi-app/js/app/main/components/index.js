@@ -2,8 +2,8 @@ import { PostModel } from "./PostModel";
 import { UserModel } from "./UserModel";
 import { ExampleInterceptor } from "./ExampleInterceptor";
 import { SessionInterceptor } from "./SessionInterceptor";
-import { MermberGuard } from "./MermberGuard";
-import { MermberGuardNoAccess } from "./MermberGuardNoAccess";
+import { MemberGuard } from "./MemberGuard";
+import { MemberGuardNoAccess } from "./MemberGuardNoAccess";
 import { CounterReducer } from "./CounterReducer";
 import { TodoReducer } from "./TodoReducer";
 import { DemoContainer } from "./DemoContainer";
@@ -43,8 +43,8 @@ export const components = {
     UserModel,
     ExampleInterceptor,
     SessionInterceptor,
-    MermberGuard,
-    MermberGuardNoAccess,
+    MemberGuard,
+    MemberGuardNoAccess,
     CounterReducer,
     TodoReducer,
     DemoContainer,

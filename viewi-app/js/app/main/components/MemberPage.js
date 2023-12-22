@@ -1,4 +1,4 @@
-import { MermberGuard } from "./MermberGuard";
+import { MemberGuard } from "./MemberGuard";
 import { BaseComponent } from "../../../viewi/core/component/baseComponent";
 import { Layout } from "./Layout";
 

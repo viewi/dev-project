@@ -1,6 +1,6 @@
 import { ClientRoute } from "./ClientRoute";
 
-class MermberGuardNoAccess {
+class MemberGuardNoAccess {
     route = null;
     constructor(route) {
         var $this = this;
@@ -14,4 +14,4 @@ class MermberGuardNoAccess {
     }
 }
 
-export { MermberGuardNoAccess }
+export { MemberGuardNoAccess }

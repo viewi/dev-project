@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "jUUoYaL3",
+    build: "NyyzEWaE",
     version: "2.0.0"
   };
 
@@ -81,8 +81,8 @@
     }
   };
 
-  // app/main/components/MermberGuard.js
-  var MermberGuard = class {
+  // app/main/components/MemberGuard.js
+  var MemberGuard = class {
     run(c) {
       var $this = this;
       c.next();
@@ -121,8 +121,8 @@
     }
   };
 
-  // app/main/components/MermberGuardNoAccess.js
-  var MermberGuardNoAccess = class {
+  // app/main/components/MemberGuardNoAccess.js
+  var MemberGuardNoAccess = class {
     route = null;
     constructor(route) {
       var $this = this;
@@ -1677,8 +1677,8 @@
     UserModel,
     ExampleInterceptor,
     SessionInterceptor,
-    MermberGuard,
-    MermberGuardNoAccess,
+    MemberGuard,
+    MemberGuardNoAccess,
     CounterReducer,
     TodoReducer,
     DemoContainer,

@@ -1,8 +1,8 @@
-class MermberGuard {
+class MemberGuard {
     run(c) {
         var $this = this;
         c.next();
     }
 }
 
-export { MermberGuard }
+export { MemberGuard }

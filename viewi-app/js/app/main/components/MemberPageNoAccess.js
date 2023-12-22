@@ -1,4 +1,4 @@
-import { MermberGuardNoAccess } from "./MermberGuardNoAccess";
+import { MemberGuardNoAccess } from "./MemberGuardNoAccess";
 import { BaseComponent } from "../../../viewi/core/component/baseComponent";
 import { Layout } from "./Layout";
 
