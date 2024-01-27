@@ -20,19 +20,31 @@ class ExternalHttpPage extends BaseComponent
     public function init()
     {
         $this->message = 'Loading..';
-        $this->http
-            ->get("https://apingweb.com/api/users")
-            ->then(function ($response) {
-                $this->message = 'Users has been read successfully';
-                $this->users = $response['data'];
-            }, function () {
-                $this->error = 'Server error';
-            }, function () {
-                $this->message = '';
-            });
+        // $this->http
+        //     ->get("https://apingweb.com/api/users")
+        //     ->then(function ($response) {
+        //         $this->message = 'Users has been read successfully';
+        //         $this->users = $response['data'];
+        //     }, function () {
+        //         $this->error = 'Server error';
+        //     }, function () {
+        //         $this->message = '';
+        //     });
+
+        // $this->http
+        //     ->post("https://jsonplaceholder.typicode.com/todos", [
+        //         "userId" => 1,
+        //         "title" => "laboriosam mollitia et enim quasi adipisci quia provident illum",
+        //         "completed" => false
+        //     ])
+        //     ->then(function ($response) {
+        //         $this->data = $response;
+        //     }, function () {
+        //     }, function () {
+        //     });
 
         $this->http
-            ->get("https://jsonplaceholder.typicode.com/todos")
+            ->post("/api/movies")
             ->then(function ($response) {
                 $this->data = $response;
             }, function () {

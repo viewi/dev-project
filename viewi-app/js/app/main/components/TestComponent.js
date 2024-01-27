@@ -22,6 +22,7 @@ class TestComponent extends BaseComponent {
     arr = ["a", "b", "c"];
     arrWithKeys = {"a": "Apple", "b": "Orange", "c": "Lemon"};
     arrNested = {"a": {"a": "Apple", "b": "Orange", "c": "Lemon"}, "b": {"a": "Apple", "b": "Orange", "c": "Lemon"}, "c": {"a": "Apple", "b": "Orange", "c": "Lemon"}};
+    movies = [];
     ifValue = true;
     ifElseValue = true;
     nestedIf = true;
@@ -39,6 +40,7 @@ class TestComponent extends BaseComponent {
     user = null;
     NameInput = null;
     testModel = "some test";
+    orderTest = [];
     counterReducer = null;
 
     constructor(counterReducer) {
@@ -54,6 +56,18 @@ class TestComponent extends BaseComponent {
     getNames() {
         var $this = this;
         return json_encode($this.checkedNames);
+    }
+
+    updateMovies() {
+        var $this = this;
+        $this.movies = [{"id": 1, "name": "Inception", "year": 2010}, {"id": 2, "name": "Interstellar", "year": 2014}, {"id": 3, "name": "Dunkirk", "year": 2017}];
+        $this.orderTest = ["1", "2", "3"];
+    }
+
+    updateMovies2() {
+        var $this = this;
+        $this.movies = [{"id": 3, "name": "Dunkirk", "year": 2017}, {"id": 2, "name": "Interstellar", "year": 2014}];
+        $this.orderTest = ["3", "2", "4", "1"];
     }
 
     getName(name) {
@@ -101,6 +115,13 @@ export const TestComponent_x = [
     function (_component) { return function (event) { expression(event); }; },
     function (_component) { return _component.event; },
     function (_component) { return function (event) { _component.onEvent(event); }; },
+    function (_component) { return function (event) { _component.updateMovies(event); }; },
+    function (_component) { return function (event) { _component.updateMovies2(event); }; },
+    function (_component) { return json_encode(_component.movies); },
+    function (_component) { return _component.movies; },
+    function (_component, i, item) { return i + " " + (item["name"] ?? ""); },
+    function (_component) { return _component.orderTest; },
+    function (_component, _key1, item) { return item; },
     function (_component) { return [function (_component) {
     return _component.testModel;
 }, function (_component, value) {
@@ -261,12 +282,12 @@ export const TestComponent_x = [
     function (_component, key, subArr) { return subArr; },
     function (_component, key, subArr, subKey, subItem) { return key + ". " + (subKey ?? "") + ". " + (subItem ?? ""); },
     function (_component) { return _component.arr; },
-    function (_component, _key1, item) { return _component.ifElseValue; },
-    function (_component, _key1, item) { return item; },
-    function (_component, _key1, item) { return item; },
-    function (_component, _key1, item) { return item; },
-    function (_component, _key1, item) { return _component.nestedIf; },
-    function (_component, _key1, item) { return _component.name; },
+    function (_component, _key2, item) { return _component.ifElseValue; },
+    function (_component, _key2, item) { return item; },
+    function (_component, _key2, item) { return item; },
+    function (_component, _key2, item) { return item; },
+    function (_component, _key2, item) { return _component.nestedIf; },
+    function (_component, _key2, item) { return _component.name; },
     function (_component) { return _component.arr; },
     function (_component, index, item) { return index; },
     function (_component, index, item) { return item; },
@@ -303,7 +324,7 @@ export const TestComponent_x = [
     function (_component) { return _component.ifValue; },
     function (_component) { return _component.ifElseValue; },
     function (_component) { return _component.arr; },
-    function (_component, _key2, item) { return item; }
+    function (_component, _key3, item) { return item; }
 ];
 
 export { TestComponent }

@@ -38,6 +38,22 @@ $router->post('/api/session', function () {
     return ['CSRFToken' => 'token'];
 });
 
+$router->post('/api/movies', function () {
+    return [
+        ['id' => 1, 'name' => 'Inception', 'year' => 2010],
+        ['id' => 2, 'name' => 'Interstellar', 'year' => 2014],
+        ['id' => 3, 'name' => 'Dunkirk', 'year' => 2017],
+    ];
+});
+
+
+$router->get('/api/movies', function () {
+    return [
+        ['id' => 1, 'name' => 'Inception', 'year' => 2010],
+        ['id' => 2, 'name' => 'Interstellar', 'year' => 2014],
+        ['id' => 3, 'name' => 'Dunkirk', 'year' => 2017],
+    ];
+});
 // Viewi components
 include __DIR__ . '/viewi-app/routes.php';
 

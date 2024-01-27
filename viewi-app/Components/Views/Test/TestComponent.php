@@ -25,6 +25,7 @@ class TestComponent extends BaseComponent
         'b' => ['a' => 'Apple', 'b' => 'Orange', 'c' => 'Lemon'],
         'c' => ['a' => 'Apple', 'b' => 'Orange', 'c' => 'Lemon']
     ];
+    public array $movies = [];
     public $ifValue = true;
     public $ifElseValue = true;
     public $nestedIf = true;
@@ -42,6 +43,7 @@ class TestComponent extends BaseComponent
     public ?UserModel $user = null;
     public ?HtmlNode $NameInput = null;
     public string $testModel = 'some test';
+    public array $orderTest = [];
 
     public function __construct(public CounterReducer $counterReducer)
     {
@@ -54,6 +56,25 @@ class TestComponent extends BaseComponent
     function getNames()
     {
         return json_encode($this->checkedNames);
+    }
+
+    public function updateMovies()
+    {
+        $this->movies = [
+            ['id' => 1, 'name' => 'Inception', 'year' => 2010],
+            ['id' => 2, 'name' => 'Interstellar', 'year' => 2014],
+            ['id' => 3, 'name' => 'Dunkirk', 'year' => 2017],
+        ];
+        $this->orderTest = ['1', '2', '3'];
+    }
+
+    public function updateMovies2()
+    {
+        $this->movies = [
+            ['id' => 3, 'name' => 'Dunkirk', 'year' => 2017],
+            ['id' => 2, 'name' => 'Interstellar', 'year' => 2014],
+        ];
+        $this->orderTest = ['3', '2', '4', '1'];
     }
 
     public function getName(?string $name = null)

@@ -10,6 +10,17 @@
 <!-- comment1 --><!-- comment2 -->
 <!-- comment3 -->
 <hr>
+<button class="mui-btn mui-btn--accent" (click)="updateMovies">Get movies</button>
+<button class="mui-btn mui-btn--accent" (click)="updateMovies2">Update movies</button>
+<div>{json_encode($movies)}</div>
+<ul>
+    <li foreach="$movies as $i => $item">
+        <p>$i {$item['name']}</p>
+    </li>
+</ul>
+<ul>
+    <li foreach="$orderTest as $item">$item</li>
+</ul>
 <h3>Todo demo</h3>
 <TodoApp />
 <hr>

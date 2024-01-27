@@ -1,8 +1,11 @@
 <Layout title="Users">
     <h1>Users</h1>
     <div class="mui-container-fluid">
-        <ul foreach="$data as $item">
-            <li>{$item['title']}</li>
+        <div>{json_encode($data)}</div>
+        <ul>
+            <li foreach="$data as $item">
+                <p>{$item['name']}</p>
+            </li>
         </ul>
         <div>Message: $message</div>
         <div>Error: $error</div>

@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "zxMcSgW2",
+    build: "msbX8rs8",
     version: "2.0.0"
   };
 
@@ -578,15 +578,7 @@
     init() {
       var $this = this;
       $this.message = "Loading..";
-      $this.http.get("https://apingweb.com/api/users").then(function(response) {
-        $this.message = "Users has been read successfully";
-        $this.users = response["data"];
-      }, function() {
-        $this.error = "Server error";
-      }, function() {
-        $this.message = "";
-      });
-      $this.http.get("https://jsonplaceholder.typicode.com/todos").then(function(response) {
+      $this.http.post("/api/movies").then(function(response) {
         $this.data = response;
       }, function() {
       }, function() {
@@ -595,10 +587,13 @@
   };
   var ExternalHttpPage_x = [
     function(_component) {
+      return json_encode(_component.data);
+    },
+    function(_component) {
       return _component.data;
     },
     function(_component, _key1, item) {
-      return item["title"];
+      return item["name"];
     },
     function(_component) {
       return "Message: " + (_component.message ?? "");
@@ -977,6 +972,7 @@
     arr = ["a", "b", "c"];
     arrWithKeys = { "a": "Apple", "b": "Orange", "c": "Lemon" };
     arrNested = { "a": { "a": "Apple", "b": "Orange", "c": "Lemon" }, "b": { "a": "Apple", "b": "Orange", "c": "Lemon" }, "c": { "a": "Apple", "b": "Orange", "c": "Lemon" } };
+    movies = [];
     ifValue = true;
     ifElseValue = true;
     nestedIf = true;
@@ -994,6 +990,7 @@
     user = null;
     NameInput = null;
     testModel = "some test";
+    orderTest = [];
     counterReducer = null;
     constructor(counterReducer) {
       super();
@@ -1007,6 +1004,16 @@
     getNames() {
       var $this = this;
       return json_encode($this.checkedNames);
+    }
+    updateMovies() {
+      var $this = this;
+      $this.movies = [{ "id": 1, "name": "Inception", "year": 2010 }, { "id": 2, "name": "Interstellar", "year": 2014 }, { "id": 3, "name": "Dunkirk", "year": 2017 }];
+      $this.orderTest = ["1", "2", "3"];
+    }
+    updateMovies2() {
+      var $this = this;
+      $this.movies = [{ "id": 3, "name": "Dunkirk", "year": 2017 }, { "id": 2, "name": "Interstellar", "year": 2014 }];
+      $this.orderTest = ["3", "2", "4", "1"];
     }
     getName(name) {
       var $this = this;
@@ -1063,6 +1070,31 @@
       return function(event) {
         _component.onEvent(event);
       };
+    },
+    function(_component) {
+      return function(event) {
+        _component.updateMovies(event);
+      };
+    },
+    function(_component) {
+      return function(event) {
+        _component.updateMovies2(event);
+      };
+    },
+    function(_component) {
+      return json_encode(_component.movies);
+    },
+    function(_component) {
+      return _component.movies;
+    },
+    function(_component, i, item) {
+      return i + " " + (item["name"] ?? "");
+    },
+    function(_component) {
+      return _component.orderTest;
+    },
+    function(_component, _key1, item) {
+      return item;
     },
     function(_component) {
       return [function(_component2) {
@@ -1434,22 +1466,22 @@
     function(_component) {
       return _component.arr;
     },
-    function(_component, _key1, item) {
+    function(_component, _key2, item) {
       return _component.ifElseValue;
     },
-    function(_component, _key1, item) {
+    function(_component, _key2, item) {
       return item;
     },
-    function(_component, _key1, item) {
+    function(_component, _key2, item) {
       return item;
     },
-    function(_component, _key1, item) {
+    function(_component, _key2, item) {
       return item;
     },
-    function(_component, _key1, item) {
+    function(_component, _key2, item) {
       return _component.nestedIf;
     },
-    function(_component, _key1, item) {
+    function(_component, _key2, item) {
       return _component.name;
     },
     function(_component) {
@@ -1568,7 +1600,7 @@
     function(_component) {
       return _component.arr;
     },
-    function(_component, _key2, item) {
+    function(_component, _key3, item) {
       return item;
     }
   ];
@@ -2232,6 +2264,18 @@
     return max > anchor.current ? target.insertBefore(textNode, target.childNodes[anchor.current]) : target.appendChild(textNode);
   }
 
+  // viewi/core/helpers/isSvg.ts
+  var svgMap = {};
+  var svgTagsString = "svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view";
+  var svgTagsList = svgTagsString.split(",");
+  for (let i = 0; i < svgTagsList.length; i++) {
+    svgMap[svgTagsList[i]] = true;
+  }
+  function isSvg(tag) {
+    return tag.toLowerCase() in svgMap;
+  }
+  var xLinkNs = "http://www.w3.org/1999/xlink";
+
   // viewi/core/render/renderAttributeValue.ts
   function renderAttributeValue(instance, attribute, element, attrName, scope) {
     let valueContent = null;
@@ -2254,10 +2298,18 @@
         element.removeAttribute(attrName);
       }
     } else {
-      if (valueContent !== null) {
-        valueContent !== element.getAttribute(attrName) && element.setAttribute(attrName, valueContent);
+      if (element.isSvg && attrName.startsWith("xlink:")) {
+        if (valueContent !== null) {
+          valueContent !== element.getAttribute(attrName) && element.setAttributeNS(xLinkNs, attrName, valueContent);
+        } else {
+          element.removeAttributeNS(xLinkNs, attrName.slice(6, attrName.length));
+        }
       } else {
-        element.removeAttribute(attrName);
+        if (valueContent !== null) {
+          valueContent !== element.getAttribute(attrName) && element.setAttribute(attrName, valueContent);
+        } else {
+          element.removeAttribute(attrName);
+        }
       }
     }
   }
@@ -2287,6 +2339,7 @@
     const isNumeric = Array.isArray(data);
     let insertTarget = anchorNode;
     let between = false;
+    let found = false;
     const usedMap = {};
     const deleteMap = {};
     for (let forKey in data) {
@@ -2308,14 +2361,15 @@
         nextScope.refs = scope.refs;
       }
       scope.children[scopeId] = nextScope;
-      let found = false;
+      const lastFound = found;
+      found = false;
       for (let di in currentArrayScope) {
         if (currentArrayScope[di] === dataItem) {
           found = true;
           between = false;
           insertTarget = anchorNode;
           break;
-        } else if (!between && !(dataKey in usedMap)) {
+        } else if (lastFound && !(dataKey in usedMap)) {
           insertTarget = currentArrayScope[di].begin;
           between = true;
         }
@@ -2716,17 +2770,6 @@
     } else {
       target.value = options.getter(instance);
     }
-  }
-
-  // viewi/core/helpers/isSvg.ts
-  var svgMap = {};
-  var svgTagsString = "svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,text,textPath,title,tspan,unknown,use,view";
-  var svgTagsList = svgTagsString.split(",");
-  for (let i = 0; i < svgTagsList.length; i++) {
-    svgMap[svgTagsList[i]] = true;
-  }
-  function isSvg(tag) {
-    return tag.toLowerCase() in svgMap;
   }
 
   // viewi/core/helpers/svgNameSpace.ts
