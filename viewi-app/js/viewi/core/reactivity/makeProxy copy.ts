@@ -80,7 +80,6 @@ function deepProxy<T>(prop: string, component: T & BaseComponent<T>, targetObjec
 
 export function defineReactive<T>(component: T & BaseComponent<T>, prop: string) {
     let val = component[prop];
-    deepProxy(prop, component, val);
     Object.defineProperty(component, prop, {
         enumerable: true,
         configurable: true,

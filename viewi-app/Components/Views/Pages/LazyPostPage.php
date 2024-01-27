@@ -40,7 +40,9 @@ class LazyPostPage extends BaseComponent
     public function clean()
     {
         $this->newPost = new PostModel();
-        // $this->newPost->id = 0;
-        // $this->newPost->name = 'New';
+        $this->newPost->id = 10;
+        $this->newPost->name = 'From scratch';
+        $this->newPost->child = new PostModel();
+        $this->newPost->child->name = 'Child';
     }
 }

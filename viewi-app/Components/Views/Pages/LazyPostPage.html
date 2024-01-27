@@ -5,7 +5,11 @@
         <label for="{$__id}">Name</label>
         <input id="{$__id}" type="text" model="$newPost->name" />
         <div>
-            {$newPost->id} {$newPost->name}
+            {$newPost->id} {$newPost->name} {$newPost->child?->name}
+        </div>
+        <div if="$newPost->child">
+            <label for="{$__id}2">Name</label>
+            <input id="{$__id}2" type="text" model="$newPost->child->name" />
         </div>
         <div>
             {json_encode($newPost)}

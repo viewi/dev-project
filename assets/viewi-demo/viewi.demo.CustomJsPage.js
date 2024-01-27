@@ -7,7 +7,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "msbX8rs8",
+    build: "I6mUEKDi",
     version: "2.0.0"
   };
 

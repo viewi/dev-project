@@ -35,6 +35,8 @@ import { TodoApp, TodoApp_x } from "./TodoApp";
 import { TodoList, TodoList_x } from "./TodoList";
 import { CssBundle, CssBundle_x } from "./CssBundle";
 import { ViewiAssets, ViewiAssets_x } from "./ViewiAssets";
+import { Subscriber } from "./Subscriber";
+import { Subscription } from "./Subscription";
 import { ConfigService } from "./ConfigService";
 import { ClientRoute } from "./ClientRoute";
 
@@ -95,6 +97,8 @@ export const components = {
     CssBundle,
     ViewiAssets_x,
     ViewiAssets,
+    Subscriber,
+    Subscription,
     ConfigService,
     ClientRoute,
 };

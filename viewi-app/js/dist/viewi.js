@@ -3,6 +3,7 @@
   var PostModel = class {
     id = 0;
     name = null;
+    child = null;
   };
 
   // app/main/components/UserModel.js
@@ -33,7 +34,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "msbX8rs8",
+    build: "I6mUEKDi",
     version: "2.0.0"
   };
 
@@ -89,13 +90,184 @@
     }
   };
 
+  // app/main/components/Subscription.js
+  var Subscription = class {
+    subscriber = null;
+    notifyCallback = null;
+    constructor(subscriber, notifyCallback) {
+      var $this = this;
+      $this.subscriber = subscriber;
+      $this.notifyCallback = notifyCallback;
+    }
+    unsubscribe() {
+      var $this = this;
+      $this.subscriber.unsubscribe($this);
+    }
+  };
+
+  // app/main/functions/array_search.js
+  function array_search(needle, haystack, argStrict) {
+    const strict = !!argStrict;
+    let key = "";
+    if (typeof needle === "object" && needle.exec) {
+      if (!strict) {
+        const flags = "i" + (needle.global ? "g" : "") + (needle.multiline ? "m" : "") + // sticky is FF only
+        (needle.sticky ? "y" : "");
+        needle = new RegExp(needle.source, flags);
+      }
+      for (key in haystack) {
+        if (haystack.hasOwnProperty(key)) {
+          if (needle.test(haystack[key])) {
+            return key;
+          }
+        }
+      }
+      return false;
+    }
+    for (key in haystack) {
+      if (haystack.hasOwnProperty(key)) {
+        if (strict && haystack[key] === needle || !strict && haystack[key] == needle) {
+          return key;
+        }
+      }
+    }
+    return false;
+  }
+
+  // app/main/functions/is_int.js
+  function is_int(mixedVar) {
+    return mixedVar === +mixedVar && isFinite(mixedVar) && !(mixedVar % 1);
+  }
+
+  // app/main/functions/array_splice.js
+  function array_splice(arr, offst, lgth, replacement) {
+    var _checkToUpIndices = function(arr2, ct, key) {
+      if (arr2[ct] !== void 0) {
+        const tmp = ct;
+        ct += 1;
+        if (ct === key) {
+          ct += 1;
+        }
+        ct = _checkToUpIndices(arr2, ct, key);
+        arr2[ct] = arr2[tmp];
+        delete arr2[tmp];
+      }
+      return ct;
+    };
+    if (replacement && typeof replacement !== "object") {
+      replacement = [replacement];
+    }
+    if (lgth === void 0) {
+      lgth = offst >= 0 ? arr.length - offst : -offst;
+    } else if (lgth < 0) {
+      lgth = (offst >= 0 ? arr.length - offst : -offst) + lgth;
+    }
+    if (Object.prototype.toString.call(arr) !== "[object Array]") {
+      let lgt = 0;
+      let ct = -1;
+      const rmvd = [];
+      const rmvdObj = {};
+      let replCt = -1;
+      let intCt = -1;
+      let returnArr = true;
+      let rmvdCt = 0;
+      let key = "";
+      for (key in arr) {
+        lgt += 1;
+      }
+      offst = offst >= 0 ? offst : lgt + offst;
+      for (key in arr) {
+        ct += 1;
+        if (ct < offst) {
+          if (isInt(key)) {
+            intCt += 1;
+            if (parseInt(key, 10) === intCt) {
+              continue;
+            }
+            _checkToUpIndices(arr, intCt, key);
+            arr[intCt] = arr[key];
+            delete arr[key];
+          }
+          continue;
+        }
+        if (returnArr && isInt(key)) {
+          rmvd.push(arr[key]);
+          rmvdObj[rmvdCt++] = arr[key];
+        } else {
+          rmvdObj[key] = arr[key];
+          returnArr = false;
+        }
+        if (replacement && replacement[++replCt]) {
+          arr[key] = replacement[replCt];
+        } else {
+          delete arr[key];
+        }
+      }
+      return returnArr ? rmvd : rmvdObj;
+    }
+    if (replacement) {
+      replacement.unshift(offst, lgth);
+      return Array.prototype.splice.apply(arr, replacement);
+    }
+    return arr.splice(offst, lgth);
+  }
+
+  // app/main/components/Subscriber.js
+  var Subscriber = class {
+    dataState = null;
+    subscribers = [];
+    constructor(defaultValue) {
+      var $this = this;
+      defaultValue = typeof defaultValue !== "undefined" ? defaultValue : null;
+      if (defaultValue !== null) {
+        $this.dataState = { "data": defaultValue };
+      }
+    }
+    subscribe(callback) {
+      var $this = this;
+      var subscription = new Subscription($this, callback);
+      $this.subscribers.push(subscription);
+      subscription.notifyCallback($this.dataState ? $this.dataState["data"] : null);
+      return subscription;
+    }
+    unsubscribe(subscription) {
+      var $this = this;
+      var index = array_search(subscription, $this.subscribers);
+      if (index !== false) {
+        array_splice($this.subscribers, index, 1);
+      }
+    }
+    notify() {
+      var $this = this;
+      for (var _i0 in $this.subscribers) {
+        var subscription = $this.subscribers[_i0];
+        subscription.notifyCallback($this.dataState ? $this.dataState["data"] : null);
+      }
+    }
+    reset() {
+      var $this = this;
+      $this.dataState = null;
+      $this.notify();
+    }
+    publish(data) {
+      var $this = this;
+      $this.dataState = { "data": data };
+      $this.notify();
+    }
+  };
+
   // app/main/components/ClientRoute.js
   var Platform = register.Platform;
   var ClientRoute = class {
+    urlUpdateSubscriber = null;
     platform = null;
     constructor(platform) {
       var $this = this;
       $this.platform = platform;
+      $this.urlUpdateSubscriber = new Subscriber($this.platform.getCurrentUrlPath());
+      $this.platform.onUrlUpdate(function() {
+        $this.urlUpdateSubscriber.publish($this.platform.getCurrentUrlPath());
+      });
     }
     navigateBack() {
       var $this = this;
@@ -116,6 +288,10 @@
     getQueryParams() {
       var $this = this;
       return $this.platform.getQueryParams();
+    }
+    urlWatcher() {
+      var $this = this;
+      return $this.urlUpdateSubscriber;
     }
   };
 
@@ -1771,6 +1947,8 @@
     CssBundle,
     ViewiAssets_x,
     ViewiAssets,
+    Subscriber,
+    Subscription,
     ConfigService,
     ClientRoute
   };
@@ -1781,7 +1959,10 @@
     json_encode,
     strlen,
     count,
-    implode
+    implode,
+    array_search,
+    array_splice,
+    is_int
   };
 
   // viewi/core/router/routeItem.ts
@@ -2090,73 +2271,92 @@
 
   // viewi/core/reactivity/makeProxy.ts
   var reactiveId = 0;
-  function makeReactive(componentProperty, component, path) {
-    const targetObject = componentProperty.$ ?? componentProperty;
-    if (!targetObject.$) {
-      Object.defineProperty(targetObject, "$", {
-        enumerable: false,
-        writable: true,
-        value: targetObject
-      });
-      Object.defineProperty(targetObject, "$$r", {
-        enumerable: false,
-        writable: true,
-        value: {}
-      });
+  function activateTarget(component, mainPath, prop, target) {
+    let val = target[prop];
+    if (Array.isArray(val)) {
+    } else if (val !== null && typeof val === "object" && typeof val !== "function") {
+      deepProxy(mainPath, component, val);
     }
-    const proxy = new Proxy(targetObject, {
-      set(obj, prop, value) {
-        const react = obj[prop] !== value;
-        const ret = Reflect.set(obj, prop, value);
+    Object.defineProperty(target, prop, {
+      enumerable: true,
+      configurable: true,
+      get: function() {
+        return val;
+      },
+      set: function(value) {
+        const react = val !== value;
+        val = value;
+        deepProxy(mainPath, component, val);
         if (react) {
-          for (let id in obj.$$r) {
-            const path2 = obj.$$r[id][0];
-            const component2 = obj.$$r[id][1];
-            if (path2 in component2.$$r) {
-              for (let i in component2.$$r[path2]) {
-                const callbackFunc = component2.$$r[path2][i];
+          for (let id in target.$$r) {
+            const path = target.$$r[id][0];
+            const component2 = target.$$r[id][1];
+            if (path in component2.$$r) {
+              for (let i in component2.$$r[path]) {
+                const callbackFunc = component2.$$r[path][i];
                 callbackFunc[0].apply(null, callbackFunc[1]);
               }
             }
           }
         }
-        return ret;
       }
     });
-    return proxy;
   }
-  function deepProxy(prop, component, value) {
-    if (!(prop in ReserverProps) && value !== null && typeof value === "object" && !Array.isArray(value)) {
-      const activated = makeReactive(value, component, prop);
-      component[prop] = activated;
-      const trackerId = ++reactiveId + "";
-      activated.$$r[trackerId] = [prop, component];
-      component.$$p.push([trackerId, activated]);
+  function deepProxy(prop, component, targetObject) {
+    if (!(prop in ReserverProps)) {
+      if (Array.isArray(targetObject)) {
+      } else if (targetObject !== null && typeof targetObject === "object" && typeof targetObject !== "function") {
+        let keys = Object.keys(targetObject);
+        for (let i = 0; i < keys.length; i++) {
+          const valueProp = keys[i];
+          if (!(valueProp in ReserverProps)) {
+            activateTarget(component, prop, valueProp, targetObject);
+          }
+        }
+        if (!targetObject.$$r) {
+          Object.defineProperty(targetObject, "$$r", {
+            enumerable: false,
+            writable: true,
+            value: {}
+          });
+        }
+        const trackerId = ++reactiveId + "";
+        targetObject.$$r[trackerId] = [prop, component];
+        component.$$p.push([trackerId, targetObject]);
+      }
     }
+  }
+  function defineReactive(component, prop) {
+    let val = component[prop];
+    deepProxy(prop, component, val);
+    Object.defineProperty(component, prop, {
+      enumerable: true,
+      configurable: true,
+      get: function() {
+        return val;
+      },
+      set: function(value) {
+        const react = val !== value;
+        val = value;
+        deepProxy(prop, component, val);
+        if (react && prop in component.$$r) {
+          for (let i in component.$$r[prop]) {
+            const callbackFunc = component.$$r[prop][i];
+            callbackFunc[0].apply(null, callbackFunc[1]);
+          }
+        }
+      }
+    });
   }
   function makeProxy(component) {
     let keys = Object.keys(component);
     for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      const val = component[key];
-      deepProxy(key, component, val);
-    }
-    const proxy = new Proxy(component, {
-      set(obj, prop, value) {
-        const react = obj[prop] !== value;
-        const ret = Reflect.set(obj, prop, value);
-        deepProxy(prop, component, value);
-        if (react && prop in obj.$$r) {
-          for (let i in obj.$$r[prop]) {
-            const callbackFunc = obj.$$r[prop][i];
-            callbackFunc[0].apply(null, callbackFunc[1]);
-          }
-        }
-        return ret;
+      const prop = keys[i];
+      if (!(prop in ReserverProps)) {
+        defineReactive(component, prop);
       }
-    });
-    component.$ = component;
-    return proxy;
+    }
+    return component;
   }
 
   // viewi/core/anchor/getAnchor.ts
@@ -3618,11 +3818,13 @@
     locationScope.link.href = href;
     return locationScope.link.pathname;
   };
+  var onUrlUpdate = {};
   var updateHistory = function(href, forward = true) {
     if (forward) {
       window.history.pushState({ href }, "", href);
     }
     window.scrollTo(0, 0);
+    onUrlUpdate.callback?.();
   };
   function handleUrl(href, forward = true) {
     globalScope.cancel = true;
@@ -3640,6 +3842,8 @@
   var Platform4 = class {
     browser = true;
     server = false;
+    constructor() {
+    }
     getConfig() {
       return componentsMeta.config;
     }
@@ -3657,6 +3861,9 @@
     }
     getQueryParams() {
       return Object.fromEntries(new URLSearchParams(location.search));
+    }
+    onUrlUpdate(callback) {
+      onUrlUpdate.callback = callback;
     }
   };
 
@@ -4009,7 +4216,7 @@
       if (scope.instance._name in globalScope.iteration) {
         globalScope.iteration[scope.instance._name].slots[slotName] = anchorSlotNode;
       }
-      portal.$.anchorNode = anchorSlotNode;
+      portal.anchorNode = anchorSlotNode;
       if (hydrate) {
         portals[portal.to].current = anchor.current;
         const portalPositionIndexAfter = Array.prototype.indexOf.call(renderTarget.childNodes, portalEndMark);
