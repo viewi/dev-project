@@ -10,6 +10,7 @@ class ExternalHttpPage extends BaseComponent {
     error = "";
     message = "";
     users = null;
+    data = [];
     http = null;
 
     constructor(http) {
@@ -29,19 +30,26 @@ class ExternalHttpPage extends BaseComponent {
         }, function () {
             $this.message = "";
         });
+        $this.http.get("https:\/\/jsonplaceholder.typicode.com\/todos").then(function (response) {
+            $this.data = response;
+        }, function () {
+        }, function () {
+        });
     }
 }
 
 export const ExternalHttpPage_x = [
+    function (_component) { return _component.data; },
+    function (_component, _key1, item) { return item["title"]; },
     function (_component) { return "Message: " + (_component.message ?? ""); },
     function (_component) { return "Error: " + (_component.error ?? ""); },
     function (_component) { return _component.users; },
     function (_component) { return _component.users; },
-    function (_component, _key1, user) { return user["user_id"]; },
-    function (_component, _key1, user) { return user["name"]; },
-    function (_component, _key1, user) { return user["email"]; },
-    function (_component, _key1, user) { return user["age"]; },
-    function (_component, _key1, user) { return user["date_created"]; }
+    function (_component, _key2, user) { return user["user_id"]; },
+    function (_component, _key2, user) { return user["name"]; },
+    function (_component, _key2, user) { return user["email"]; },
+    function (_component, _key2, user) { return user["age"]; },
+    function (_component, _key2, user) { return user["date_created"]; }
 ];
 
 export { ExternalHttpPage }

@@ -21,4 +21,4 @@ return (new AppConfig('demo'))
     // ->combine()
     ->developmentMode(true)
     ->buildJsSourceCode()
-    ->watchWithNPM(false);
+    ->watchWithNPM(true);

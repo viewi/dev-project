@@ -11,6 +11,7 @@ class ExternalHttpPage extends BaseComponent
     public string $error = '';
     public string $message = '';
     public ?array $users = null;
+    public $data = [];
 
     public function __construct(private HttpClient $http)
     {
@@ -28,6 +29,14 @@ class ExternalHttpPage extends BaseComponent
                 $this->error = 'Server error';
             }, function () {
                 $this->message = '';
+            });
+
+        $this->http
+            ->get("https://jsonplaceholder.typicode.com/todos")
+            ->then(function ($response) {
+                $this->data = $response;
+            }, function () {
+            }, function () {
             });
     }
 }

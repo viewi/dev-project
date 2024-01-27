@@ -33,7 +33,7 @@
     minify: false,
     combine: false,
     appendVersion: false,
-    build: "NyyzEWaE",
+    build: "zxMcSgW2",
     version: "2.0.0"
   };
 
@@ -92,12 +92,10 @@
   // app/main/components/ClientRoute.js
   var Platform = register.Platform;
   var ClientRoute = class {
-    config = null;
     platform = null;
     constructor(platform) {
       var $this = this;
       $this.platform = platform;
-      $this.config = platform.getConfig();
     }
     navigateBack() {
       var $this = this;
@@ -570,6 +568,7 @@
     error = "";
     message = "";
     users = null;
+    data = [];
     http = null;
     constructor(http) {
       super();
@@ -587,9 +586,20 @@
       }, function() {
         $this.message = "";
       });
+      $this.http.get("https://jsonplaceholder.typicode.com/todos").then(function(response) {
+        $this.data = response;
+      }, function() {
+      }, function() {
+      });
     }
   };
   var ExternalHttpPage_x = [
+    function(_component) {
+      return _component.data;
+    },
+    function(_component, _key1, item) {
+      return item["title"];
+    },
     function(_component) {
       return "Message: " + (_component.message ?? "");
     },
@@ -602,19 +612,19 @@
     function(_component) {
       return _component.users;
     },
-    function(_component, _key1, user) {
+    function(_component, _key2, user) {
       return user["user_id"];
     },
-    function(_component, _key1, user) {
+    function(_component, _key2, user) {
       return user["name"];
     },
-    function(_component, _key1, user) {
+    function(_component, _key2, user) {
       return user["email"];
     },
-    function(_component, _key1, user) {
+    function(_component, _key2, user) {
       return user["age"];
     },
-    function(_component, _key1, user) {
+    function(_component, _key2, user) {
       return user["date_created"];
     }
   ];
@@ -1896,9 +1906,6 @@
     }
   };
 
-  // viewi/core/anchor/anchors.ts
-  var anchors = {};
-
   // viewi/core/di/globalScope.ts
   var globalScope = {
     hydrate: true,
@@ -1908,8 +1915,12 @@
     located: {},
     iteration: {},
     lastIteration: {},
-    layout: ""
+    layout: "",
+    cancel: false
   };
+
+  // viewi/core/anchor/anchors.ts
+  var anchors = {};
 
   // viewi/core/lifecycle/scopeState.ts
   function getScopeState() {
@@ -3418,7 +3429,7 @@
         }
       }
     }
-    if (info.hooks && info.hooks.mounted) {
+    if (!globalScope.cancel && info.hooks && info.hooks.mounted) {
       instance.mounted();
     }
     if (name in globalScope.located) {
@@ -3481,6 +3492,7 @@
   // viewi/core/render/renderApp.ts
   var lazyRecords = {};
   function renderApp(name, params, target, onAccept, skipMiddleware) {
+    globalScope.cancel = false;
     if (!(name in componentsMeta.list)) {
       throw new Error(`Component ${name} not found.`);
     }
@@ -3567,14 +3579,18 @@
     if (forward) {
       window.history.pushState({ href }, "", href);
     }
+    window.scrollTo(0, 0);
   };
   function handleUrl(href, forward = true) {
+    globalScope.cancel = true;
     const urlPath = getPathName(href);
     const routeItem = componentsMeta.router.resolve(urlPath);
     if (routeItem == null) {
       throw "Can't resolve route for uri: " + urlPath;
     }
-    renderApp(routeItem.item.action, routeItem.params, void 0, { func: updateHistory, href, forward });
+    setTimeout(function() {
+      renderApp(routeItem.item.action, routeItem.params, void 0, { func: updateHistory, href, forward });
+    }, 0);
   }
 
   // viewi/core/environment/platform.ts
@@ -3772,6 +3788,7 @@
     method;
     headers = {};
     body = null;
+    isExternal;
     constructor(url, method, headers = {}, body = null) {
       this.url = url;
       this.method = method;
@@ -3807,6 +3824,10 @@
       var clone = new _Request(this.url, this.method, this.headers, this.body);
       return clone;
     }
+    // server-side only, makes no difference on front end
+    markAsExternal() {
+      return this;
+    }
   };
 
   // viewi/core/http/httpClient.ts
@@ -3817,7 +3838,7 @@
       if (keepGoing && response2.status >= 200 && response2.status < 300) {
         callback(response2.body);
       } else {
-        callback(void 0, response2.body ?? "Failed");
+        callback(void 0, !!response2.body ? response2.body : "Failed");
       }
     };
     const run = function(response2, keepGoing) {

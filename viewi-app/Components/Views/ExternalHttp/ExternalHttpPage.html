@@ -1,6 +1,9 @@
 <Layout title="Users">
     <h1>Users</h1>
     <div class="mui-container-fluid">
+        <ul foreach="$data as $item">
+            <li>{$item['title']}</li>
+        </ul>
         <div>Message: $message</div>
         <div>Error: $error</div>
         <div if="$users">
